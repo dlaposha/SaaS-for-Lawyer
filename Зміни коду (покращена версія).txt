@@ -1,0 +1,3066 @@
+
+#SaaS-for-Lawyer/.env.example
+
+# PostgreSQL
+POSTGRES_DB=lawyer_crm
+POSTGRES_USER=crm_user
+POSTGRES_PASSWORD=crm_pass
+POSTGRES_HOST=db
+DATABASE_URL=postgresql://crm_user:crm_pass@db:5432/lawyer_crm
+DATABASE_POOL_SIZE=20
+DATABASE_MAX_OVERFLOW=30
+
+# Redis
+REDIS_URL=redis://redis:6379/0
+REDIS_PASSWORD=your_redis_password
+REDIS_CACHE_TTL=300
+
+# MinIO
+MINIO_ENDPOINT=http://minio:9000
+MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=minioadmin
+MINIO_BUCKET=lawyer-crm
+MINIO_SECURE=false
+
+# FastAPI
+SECRET_KEY=your_very_long_random_secret_key_here_change_it
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+REFRESH_TOKEN_EXPIRE_DAYS=7
+API_V1_STR=/api/v1
+ENVIRONMENT=production
+DEBUG=false
+HOST=0.0.0.0
+PORT=8000
+LOG_LEVEL=INFO
+
+# CORS
+CORS_ORIGINS=["http://localhost:3000", "http://127.0.0.1:3000", "http://frontend:3000"]
+ALLOWED_HOSTS=["localhost", "127.0.0.1", "backend", "frontend"]
+
+# Celery
+CELERY_BROKER_URL=redis://redis:6379/1
+CELERY_RESULT_BACKEND=redis://redis:6379/2
+
+# SMTP
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your_email@gmail.com
+SMTP_PASSWORD=your_app_password
+EMAIL_FROM=noreply@lawyer-crm.com
+
+# Grafana
+GRAFANA_PASSWORD=admin
+
+# Моніторинг - Prometheus
+PROMETHEUS_MULTIPROC_DIR=/tmp/prometheus
+METRICS_ENABLED=true
+
+# Додаткові налаштування
+UPLOAD_MAX_FILE_SIZE=104857600  # 100MB
+SESSION_TIMEOUT=3600
+PASSWORD_RESET_TIMEOUT=3600
+
+
+#SaaS-for-Lawyer/.env
+
+# ==================== БЕЗПЕКА ====================
+SECRET_KEY=your_very_long_secret_key_change_in_production_32_chars_min
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+REFRESH_TOKEN_EXPIRE_DAYS=7
+
+# ==================== БАЗА ДАНИХ ====================
+POSTGRES_DB=lawyer_crm
+POSTGRES_USER=crm_user
+POSTGRES_PASSWORD=strong_password_change_this
+POSTGRES_HOST=db
+DATABASE_URL=postgresql://crm_user:strong_password_change_this@db:5432/lawyer_crm
+DATABASE_POOL_SIZE=20
+DATABASE_MAX_OVERFLOW=30
+
+# ==================== REDIS ====================
+REDIS_URL=redis://redis:6379/0
+REDIS_PASSWORD=redis_password_change_this
+REDIS_CACHE_TTL=300
+
+# ==================== MINIO/S3 ====================
+MINIO_ROOT_USER=minioadmin
+MINIO_ROOT_PASSWORD=strong_minio_password
+MINIO_ENDPOINT=http://minio:9000
+MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=strong_minio_password
+MINIO_BUCKET=lawyer-crm
+MINIO_SECURE=false
+
+# ==================== SMTP/EMAIL ====================
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=d.laposha@gmail.com
+SMTP_PASSWORD=Kfgjif777
+EMAIL_FROM=noreply@lawyer-crm.com
+
+# ==================== ДОДАТОК ====================
+ENVIRONMENT=production
+DEBUG=false
+HOST=0.0.0.0
+PORT=8000
+LOG_LEVEL=INFO
+
+# ==================== CORS ====================
+CORS_ORIGINS=["https://yourdomain.com", "https://app.yourdomain.com"]
+ALLOWED_HOSTS=["yourdomain.com", "app.yourdomain.com", "localhost"]
+
+# ==================== API ====================
+API_V1_STR=/api/v1
+API_PREFIX=/api
+
+# ==================== МОНІТОРИНГ ====================
+PROMETHEUS_MULTIPROC_DIR=/tmp/prometheus
+METRICS_ENABLED=true
+
+# ==================== СЕРВІСИ ====================
+SENTRY_DSN=https://your_sentry_dsn@sentry.io/project_id
+STRIPE_SECRET_KEY=sk_test_your_stripe_key
+STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
+
+# ==================== ДОДАТКОВІ НАЛАШТУВАННЯ ====================
+UPLOAD_MAX_FILE_SIZE=104857600  # 100MB
+SESSION_TIMEOUT=3600
+PASSWORD_RESET_TIMEOUT=3600
+
+# ==================== GRAFANA ====================
+GRAFANA_PASSWORD=admin_secure_password
+
+
+#SaaS-for-Lawyer/.gitignore
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependency directories
+node_modules/
+__pycache__/
+.venv/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Docker
+.dockerignore
+*.dockerfile
+*.dockerfile.dev
+*.dockerfile.prod
+docker-compose.override.yml
+
+# IDE
+.idea/
+.vscode/
+
+# Build artifacts
+build/
+dist/
+.build/
+.next/
+.out/
+.output/
+.serverless/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Coverage reports
+.coverage
+.nyc_output
+
+# Testing
+.pytest_cache/
+.mypy_cache/
+
+# VS Code
+.vscode/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Other
+*.bak
+*.swp
+*~
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+*.egg
+*.lock
+
+
+#SaaS-for-Lawyer/docker-compose.dev.yml
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: lawyer_crm_db_dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+      - ./backend/init-db:/docker-entrypoint-initdb.d
+      - ./backend/postgresql.conf:/etc/postgresql/postgresql.conf
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    command: >
+      postgres 
+      -c config_file=/etc/postgresql/postgresql.conf
+      -c max_connections=200
+      -c shared_buffers=256MB
+      -c effective_cache_size=1GB
+    networks:
+      - lawyer-crm-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: lawyer_crm_redis_dev
+    restart: unless-stopped
+    command: >
+      redis-server 
+      --requirepass ${REDIS_PASSWORD}
+      --save 60 1000
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --maxmemory-samples 5
+      --tcp-keepalive 300
+      --timeout 0
+    volumes:
+      - redis_data_dev:/data
+      - ./backend/redis.conf:/etc/redis/redis.conf
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - lawyer-crm-network
+
+  minio:
+    image: minio/minio:latest
+    container_name: lawyer_crm_minio_dev
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio_data_dev:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - lawyer-crm-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+      args:
+        - BUILD_ENVIRONMENT=development
+    container_name: lawyer_crm_backend_dev
+    restart: unless-stopped
+    environment:
+      # Database
+      DATABASE_URL: ${DATABASE_URL}
+      # Redis
+      REDIS_URL: ${REDIS_URL}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      # MinIO
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET: ${MINIO_BUCKET}
+      MINIO_SECURE: ${MINIO_SECURE}
+      # Security
+      SECRET_KEY: ${SECRET_KEY}
+      ALGORITHM: ${ALGORITHM}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
+      REFRESH_TOKEN_EXPIRE_DAYS: ${REFRESH_TOKEN_EXPIRE_DAYS}
+      # CORS
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      # Environment
+      ENVIRONMENT: ${ENVIRONMENT}
+      DEBUG: ${DEBUG}
+      HOST: ${HOST}
+      PORT: ${PORT}
+      LOG_LEVEL: ${LOG_LEVEL}
+      # SMTP
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      EMAIL_FROM: ${EMAIL_FROM}
+      EMAIL_TEMPLATES_DIR: ${EMAIL_TEMPLATES_DIR}
+      # Celery
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
+      # Monitoring
+      PROMETHEUS_MULTIPROC_DIR: ${PROMETHEUS_MULTIPROC_DIR}
+      METRICS_ENABLED: ${METRICS_ENABLED}
+      # Додаткові налаштування
+      UPLOAD_MAX_FILE_SIZE: ${UPLOAD_MAX_FILE_SIZE}
+      SESSION_TIMEOUT: ${SESSION_TIMEOUT}
+      PASSWORD_RESET_TIMEOUT: ${PASSWORD_RESET_TIMEOUT}
+    volumes:
+      - ./backend:/app
+      - ./backend/logs:/app/logs
+      - ./backend/static:/app/static
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - lawyer-crm-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: lawyer_crm_frontend_dev
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://backend:8000/api/v1
+      - GENERATE_SOURCEMAP=false
+      - DISABLE_ESLINT_PLUGIN=true
+      - INLINE_RUNTIME_CHUNK=false
+    networks:
+      - lawyer-crm-network
+
+  celery-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: lawyer_crm_celery_worker_dev
+    restart: unless-stopped
+    command: celery -A src.celery worker --loglevel=info --concurrency=2
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: ${REDIS_URL}
+      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
+      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - db
+      - redis
+    networks:
+      - lawyer-crm-network
+
+  nginx:
+    image: nginx:stable-alpine
+    container_name: lawyer_crm_nginx_dev
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - lawyer-crm-network
+
+volumes:
+  postgres_data_dev:
+    driver: local
+  redis_data_dev:
+    driver: local
+  minio_data_dev:
+    driver: local
+
+networks:
+  lawyer-crm-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+
+# backend/src/core/config.py
+
+from pydantic import BaseSettings, AnyHttpUrl, validator, PostgresDsn, RedisDsn
+from typing import List, Optional, Union
+import secrets
+import enum
+
+class Settings(BaseSettings):
+    # Безпека - автоматична генерація секретного ключа
+    SECRET_KEY: str = secrets.token_urlsafe(32)
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+
+    # База даних
+    DATABASE_URL: PostgresDsn
+    DATABASE_POOL_SIZE: int = 20
+    DATABASE_MAX_OVERFLOW: int = 10
+
+    # Redis для кешування та сесій
+    REDIS_URL: RedisDsn = "redis://localhost:6379/0"
+    REDIS_CACHE_TTL: int = 300
+
+    # MinIO для зберігання файлів
+    MINIO_ENDPOINT: str
+    MINIO_ACCESS_KEY: str
+    MINIO_SECRET_KEY: str
+    MINIO_BUCKET: str = "lawyer-crm"
+    MINIO_SECURE: bool = False
+
+    # SMTP для email
+    SMTP_HOST: Optional[str] = None
+    SMTP_PORT: Optional[int] = 587
+    SMTP_USER: Optional[str] = None
+    SMTP_PASSWORD: Optional[str] = None
+    EMAIL_FROM: Optional[str] = None
+    EMAIL_TEMPLATES_DIR: str = "./email-templates"
+
+    # Налаштування додатку
+    ENVIRONMENT: str = "development"
+    DEBUG: bool = False
+    HOST: str = "0.0.0.0"
+    PORT: int = 8000
+    LOG_LEVEL: str = "INFO"
+
+    # CORS з валідацією
+    CORS_ORIGINS: List[AnyHttpUrl] = []
+
+    @validator("CORS_ORIGINS", pre=True)
+    def assemble_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:
+        """Парсить CORS_ORIGINS з рядка або JSON-масиву."""
+        if isinstance(v, str) and not v.startswith("["):
+            return [i.strip() for i in v.split(",")]
+        elif isinstance(v, list):
+            return v
+        return ["http://localhost:3000", "http://127.0.0.1:3000"]
+
+    # Allowed Hosts з валідацією
+    ALLOWED_HOSTS: List[str] = []
+
+    @validator("ALLOWED_HOSTS", pre=True)
+    def assemble_allowed_hosts(cls, v: Union[str, List[str]]) -> List[str]:
+        """Парсить ALLOWED_HOSTS з рядка або JSON-масиву."""
+        if isinstance(v, str) and not v.startswith("["):
+            return [i.strip() for i in v.split(",")]
+        elif isinstance(v, list):
+            return v
+        return ["localhost", "127.0.0.1"]
+
+    # API
+    API_V1_STR: str = "/api/v1"
+    API_PREFIX: str = "/api"
+
+    # Моніторинг - Prometheus
+    PROMETHEUS_MULTIPROC_DIR: str = "/tmp/prometheus"
+    METRICS_ENABLED: bool = True
+
+    # Celery
+    CELERY_BROKER_URL: str
+    CELERY_RESULT_BACKEND: str
+
+    # Додаткові налаштування
+    UPLOAD_MAX_FILE_SIZE: int = 104857600  # 100MB
+    SESSION_TIMEOUT: int = 3600
+    PASSWORD_RESET_TIMEOUT: int = 3600
+
+    # Сервіси
+    SENTRY_DSN: Optional[str] = None
+    STRIPE_SECRET_KEY: Optional[str] = None
+    STRIPE_WEBHOOK_SECRET: Optional[str] = None
+
+    class Config:
+        env_file = ".env"
+        case_sensitive = True
+        env_file_encoding = 'utf-8'
+
+settings = Settings()
+
+# backend/src/core/security.py
+from datetime import datetime, timedelta
+from typing import Optional, Dict, Any
+from jose import JWTError, jwt
+from passlib.context import CryptContext
+from fastapi import HTTPException, status, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import secrets
+
+from .config import settings
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+security = HTTPBearer()
+
+class SecurityService:
+    """Сервіс для роботи з безпекою"""
+    
+    def __init__(self):
+        self.pwd_context = pwd_context
+    
+    def verify_password(self, plain_password: str, hashed_password: str) -> bool:
+        """Перевірка пароля"""
+        return self.pwd_context.verify(plain_password, hashed_password)
+    
+    def get_password_hash(self, password: str) -> str:
+        """Хешування пароля"""
+        return self.pwd_context.hash(password)
+    
+    def create_access_token(self, data: Dict[str, Any], expires_delta: Optional[timedelta] = None) -> str:
+        """Створення access token"""
+        to_encode = data.copy()
+        if expires_delta:
+            expire = datetime.utcnow() + expires_delta
+        else:
+            expire = datetime.utcnow() + timedelta(
+                minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+            )
+        
+        to_encode.update({
+            "exp": expire,
+            "iat": datetime.utcnow(),
+            "type": "access",
+            "jti": secrets.token_urlsafe(32)
+        })
+        
+        return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    
+    def create_refresh_token(self, data: Dict[str, Any]) -> str:
+        """Створення refresh token"""
+        to_encode = data.copy()
+        expire = datetime.utcnow() + timedelta(
+            days=settings.REFRESH_TOKEN_EXPIRE_DAYS
+        )
+        
+        to_encode.update({
+            "exp": expire,
+            "iat": datetime.utcnow(),
+            "type": "refresh",
+            "jti": secrets.token_urlsafe(32)
+        })
+        
+        return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    
+    def verify_token(self, token: str, token_type: str = "access") -> Dict[str, Any]:
+        """Перевірка токену"""
+        try:
+            payload = jwt.decode(
+                token, 
+                settings.SECRET_KEY, 
+                algorithms=[settings.ALGORITHM]
+            )
+            
+            if payload.get("type") != token_type:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid token type"
+                )
+            
+            return payload
+        except JWTError as e:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Could not validate credentials",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    
+    async def get_current_user(self, credentials: HTTPAuthorizationCredentials = Depends(security)):
+        """Отримання поточного користувача з токену"""
+        token = credentials.credentials
+        payload = self.verify_token(token)
+        return payload
+
+security_service = SecurityService()
+
+
+#backend/src/core/database.py
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy.orm import declarative_base
+from sqlalchemy.pool import AsyncAdaptedQueuePool
+from contextlib import asynccontextmanager
+from typing import AsyncGenerator
+import logging
+
+from .config import settings
+
+logger = logging.getLogger(__name__)
+
+# Асинхронний engine
+engine = create_async_engine(
+    settings.DATABASE_URL,
+    poolclass=AsyncAdaptedQueuePool,
+    pool_size=settings.DATABASE_POOL_SIZE,
+    max_overflow=settings.DATABASE_MAX_OVERFLOW,
+    pool_pre_ping=True,
+    pool_recycle=3600,
+    echo=settings.DEBUG,
+)
+
+AsyncSessionLocal = async_sessionmaker(
+    bind=engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
+)
+
+Base = declarative_base()
+
+@asynccontextmanager
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
+    """Асинхронний контекстний менеджер для роботи з БД"""
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+            await session.commit()
+        except Exception as e:
+            await session.rollback()
+            logger.error(f"Database error: {str(e)}")
+            raise
+        finally:
+            await session.close()
+
+class BaseRepository:
+    """Базовий репозиторій для роботи з моделями"""
+    
+    def __init__(self, model):
+        self.model = model
+    
+    async def get(self, db: AsyncSession, id: int):
+        """Отримання запису за ID"""
+        try:
+            from sqlalchemy.future import select
+            result = await db.execute(select(self.model).filter(self.model.id == id))
+            return result.scalar_one_or_none()
+        except Exception as e:
+            logger.error(f"Error getting {self.model.__name__} with id {id}: {e}")
+            return None
+    
+    async def create(self, db: AsyncSession, obj_in):
+        """Створення нового запису"""
+        try:
+            db_obj = self.model(**obj_in.dict())
+            db.add(db_obj)
+            await db.commit()
+            await db.refresh(db_obj)
+            return db_obj
+        except Exception as e:
+            await db.rollback()
+            logger.error(f"Error creating {self.model.__name__}: {e}")
+            return None
+
+
+#backend/src/core/security.py
+from datetime import datetime, timedelta
+from typing import Optional, Dict, Any
+from jose import JWTError, jwt
+from passlib.context import CryptContext
+from fastapi import HTTPException, status, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+import secrets
+
+from .config import settings
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+security = HTTPBearer()
+
+class SecurityService:
+    """Сервіс для роботи з безпекою"""
+    
+    def __init__(self):
+        self.pwd_context = pwd_context
+    
+    def verify_password(self, plain_password: str, hashed_password: str) -> bool:
+        """Перевірка пароля"""
+        return self.pwd_context.verify(plain_password, hashed_password)
+    
+    def get_password_hash(self, password: str) -> str:
+        """Хешування пароля"""
+        return self.pwd_context.hash(password)
+    
+    def create_access_token(self, data: Dict[str, Any], expires_delta: Optional[timedelta] = None) -> str:
+        """Створення access token"""
+        to_encode = data.copy()
+        if expires_delta:
+            expire = datetime.utcnow() + expires_delta
+        else:
+            expire = datetime.utcnow() + timedelta(
+                minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+            )
+        
+        to_encode.update({
+            "exp": expire,
+            "iat": datetime.utcnow(),
+            "type": "access",
+            "jti": secrets.token_urlsafe(32)
+        })
+        
+        return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    
+    def create_refresh_token(self, data: Dict[str, Any]) -> str:
+        """Створення refresh token"""
+        to_encode = data.copy()
+        expire = datetime.utcnow() + timedelta(
+            days=settings.REFRESH_TOKEN_EXPIRE_DAYS
+        )
+        
+        to_encode.update({
+            "exp": expire,
+            "iat": datetime.utcnow(),
+            "type": "refresh",
+            "jti": secrets.token_urlsafe(32)
+        })
+        
+        return jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    
+    def verify_token(self, token: str, token_type: str = "access") -> Dict[str, Any]:
+        """Перевірка токену"""
+        try:
+            payload = jwt.decode(
+                token, 
+                settings.SECRET_KEY, 
+                algorithms=[settings.ALGORITHM]
+            )
+            
+            if payload.get("type") != token_type:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid token type"
+                )
+            
+            return payload
+        except JWTError as e:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Could not validate credentials",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    
+    async def get_current_user(self, credentials: HTTPAuthorizationCredentials = Depends(security)):
+        """Отримання поточного користувача з токену"""
+        token = credentials.credentials
+        payload = self.verify_token(token)
+        return payload
+
+security_service = SecurityService()
+
+
+
+#backend/src/core/exceptions.py
+from fastapi import HTTPException, status
+
+class LawyerCRMException(HTTPException):
+    """Базовий клас винятків для Lawyer CRM"""
+    
+    def __init__(self, detail: str, status_code: int = status.HTTP_400_BAD_REQUEST):
+        super().__init__(status_code=status_code, detail=detail)
+
+class NotFoundException(LawyerCRMException):
+    """Виняток для ресурсів, які не знайдено"""
+    
+    def __init__(self, resource: str = "Resource"):
+        super().__init__(detail=f"{resource} not found", status_code=status.HTTP_404_NOT_FOUND)
+
+class UnauthorizedException(LawyerCRMException):
+    """Виняток для неавторизованого доступу"""
+    
+    def __init__(self, detail: str = "Not authenticated"):
+        super().__init__(detail=detail, status_code=status.HTTP_401_UNAUTHORIZED)
+
+class ForbiddenException(LawyerCRMException):
+    """Виняток для забороненого доступу"""
+    
+    def __init__(self, detail: str = "Access forbidden"):
+        super().__init__(detail=detail, status_code=status.HTTP_403_FORBIDDEN)
+
+class ValidationException(LawyerCRMException):
+    """Виняток для помилок валідації"""
+    
+    def __init__(self, detail: str = "Validation error"):
+        super().__init__(detail=detail, status_code=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+class DatabaseException(LawyerCRMException):
+    """Виняток для помилок бази даних"""
+    
+    def __init__(self, detail: str = "Database error"):
+        super().__init__(detail=detail, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class ExternalServiceException(LawyerCRMException):
+    """Виняток для помилок зовнішніх сервісів"""
+    
+    def __init__(self, detail: str = "External service error"):
+        super().__init__(detail=detail, status_code=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+#backend/src/core/middleware.py
+from fastapi import Request
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import Response
+import time
+import logging
+from typing import Callable
+
+logger = logging.getLogger(__name__)
+
+class TimingMiddleware(BaseHTTPMiddleware):
+    """Middleware для вимірювання часу виконання запитів"""
+    
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+        start_time = time.time()
+        
+        response = await call_next(request)
+        
+        process_time = time.time() - start_time
+        response.headers["X-Process-Time"] = str(process_time)
+        
+        logger.info(f"{request.method} {request.url.path} - {process_time:.3f}s")
+        
+        return response
+
+class LoggingMiddleware(BaseHTTPMiddleware):
+    """Middleware для логування запитів"""
+    
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+        # Логування вхідного запиту
+        logger.info(f"Incoming request: {request.method} {request.url.path}")
+        
+        response = await call_next(request)
+        
+        # Логування відповіді
+        logger.info(f"Response: {response.status_code} for {request.method} {request.url.path}")
+        
+        return response
+
+class CORSMiddleware(BaseHTTPMiddleware):
+    """Custom CORS Middleware"""
+    
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
+        response = await call_next(request)
+        
+        # Додавання CORS заголовків
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+        
+        return response
+	
+	
+#backend/src/api/router.py
+from fastapi import APIRouter
+
+# Імпорт роутерів з модулів
+from ..modules.auth.router import router as auth_router
+from ..modules.users.router import router as users_router
+from ..modules.cases.router import router as cases_router
+from ..modules.clients.router import router as clients_router
+from ..modules.documents.router import router as documents_router
+from ..modules.calendar.router import router as calendar_router
+from ..modules.tasks.router import router as tasks_router
+from ..modules.invoices.router import router as invoices_router
+from ..modules.hearings.router import router as hearings_router
+from ..modules.time_tracking.router import router as time_tracking_router
+from ..modules.notifications.router import router as notifications_router
+from ..modules.reports.router import router as reports_router
+from ..modules.knowledge.router import router as knowledge_router
+from ..modules.ai_assistant.router import router as ai_assistant_router
+
+# Головний роутер API
+api_router = APIRouter()
+
+# Підключення роутерів модулів
+api_router.include_router(auth_router, prefix="/auth", tags=["Authentication"])
+api_router.include_router(users_router, prefix="/users", tags=["Users"])
+api_router.include_router(cases_router, prefix="/cases", tags=["Cases"])
+api_router.include_router(clients_router, prefix="/clients", tags=["Clients"])
+api_router.include_router(documents_router, prefix="/documents", tags=["Documents"])
+api_router.include_router(calendar_router, prefix="/calendar", tags=["Calendar"])
+api_router.include_router(tasks_router, prefix="/tasks", tags=["Tasks"])
+api_router.include_router(invoices_router, prefix="/invoices", tags=["Invoices"])
+api_router.include_router(hearings_router, prefix="/hearings", tags=["Hearings"])
+api_router.include_router(time_tracking_router, prefix="/time-tracking", tags=["Time Tracking"])
+api_router.include_router(notifications_router, prefix="/notifications", tags=["Notifications"])
+api_router.include_router(reports_router, prefix="/reports", tags=["Reports"])
+api_router.include_router(knowledge_router, prefix="/knowledge", tags=["Knowledge Base"])
+api_router.include_router(ai_assistant_router, prefix="/ai-assistant", tags=["AI Assistant"])
+
+@api_router.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    return {"status": "healthy", "service": "Lawyer CRM API"}
+
+
+#backend/src/celery/config.py
+from src.core.config import settings
+
+# Конфігурація Celery
+broker_url = settings.CELERY_BROKER_URL
+result_backend = settings.CELERY_RESULT_BACKEND
+
+# Налаштування серіалізації
+task_serializer = "json"
+result_serializer = "json"
+accept_content = ["json"]
+
+# Часові зони
+timezone = "Europe/Kiev"
+enable_utc = False
+
+# Налаштування worker
+worker_prefetch_multiplier = 4
+worker_max_tasks_per_child = 1000
+task_acks_late = True
+task_reject_on_worker_lost = True
+
+# Налаштування черг
+task_default_queue = "default"
+task_default_exchange = "default"
+task_default_routing_key = "default"
+
+# Ретрі
+task_default_retry_delay = 180  # 3 хвилини
+task_max_retries = 3
+
+# Моніторинг
+worker_send_task_events = True
+task_send_sent_event = True
+
+# Розклад завдань
+beat_schedule = {
+    'cleanup-old-sessions': {
+        'task': 'src.celery.tasks.cleanup_old_sessions',
+        'schedule': 86400.0,  # Щодня
+    },
+    'send-daily-reports': {
+        'task': 'src.celery.tasks.send_daily_reports',
+        'schedule': 3600.0,  # Кожну годину
+    },
+    'backup-database': {
+        'task': 'src.celery.tasks.backup_database',
+        'schedule': 604800.0,  # Щотижня
+    },
+}
+
+
+#backend/src/celery/tasks.py
+from celery import Celery
+from src.core.config import settings
+from src.core.database import AsyncSessionLocal
+import logging
+from datetime import datetime, timedelta
+
+logger = logging.getLogger(__name__)
+
+# Створення екземпляру Celery
+celery_app = Celery("lawyer_crm")
+
+# Імпорт конфігурації
+celery_app.config_from_object("src.celery.config")
+
+@celery_app.task(bind=True, max_retries=3)
+def send_email(self, to_email: str, subject: str, template_name: str, context: dict):
+    """Завдання для відправки email"""
+    try:
+        # Тут буде логіка відправки email
+        logger.info(f"Sending email to {to_email}: {subject}")
+        # Імітація відправки
+        return f"Email sent to {to_email}"
+    except Exception as exc:
+        logger.error(f"Failed to send email to {to_email}: {exc}")
+        raise self.retry(exc=exc, countdown=60)
+
+@celery_app.task
+def cleanup_old_sessions():
+    """Завдання для очищення старих сесій"""
+    try:
+        # Логіка очищення старих сесій
+        cutoff_date = datetime.utcnow() - timedelta(days=30)
+        logger.info(f"Cleaning up sessions older than {cutoff_date}")
+        return "Old sessions cleanup completed"
+    except Exception as exc:
+        logger.error(f"Failed to cleanup old sessions: {exc}")
+        return "Cleanup failed"
+
+@celery_app.task
+def generate_report(report_type: str, user_id: int, parameters: dict):
+    """Завдання для генерації звітів"""
+    try:
+        logger.info(f"Generating {report_type} report for user {user_id}")
+        # Імітація генерації звіту
+        return f"Report {report_type} generated successfully"
+    except Exception as exc:
+        logger.error(f"Failed to generate report: {exc}")
+        return "Report generation failed"
+
+@celery_app.task
+def backup_database():
+    """Завдання для резервного копіювання бази даних"""
+    try:
+        logger.info("Starting database backup")
+        # Логіка резервного копіювання
+        return "Database backup completed successfully"
+    except Exception as exc:
+        logger.error(f"Database backup failed: {exc}")
+        return "Backup failed"
+
+@celery_app.task
+def process_document_analysis(document_id: int):
+    """Завдання для аналізу документів"""
+    try:
+        logger.info(f"Processing document analysis for document {document_id}")
+        # Логіка аналізу документа
+        return f"Document {document_id} analysis completed"
+    except Exception as exc:
+        logger.error(f"Document analysis failed: {exc}")
+        return "Analysis failed"
+
+# Реєстрація завдань
+celery_app.autodiscover_tasks(["src.celery.tasks"])
+
+
+
+#backend/src/repositories/base.py
+from typing import Generic, TypeVar, Optional, List, Dict, Any
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from sqlalchemy import update, delete
+from src.core.database import Base
+import logging
+
+logger = logging.getLogger(__name__)
+
+ModelType = TypeVar("ModelType", bound=Base)
+
+class BaseRepository(Generic[ModelType]):
+    """Базовий репозиторій для CRUD операцій"""
+    
+    def __init__(self, model: type[ModelType]):
+        self.model = model
+    
+    async def get(self, db: AsyncSession, id: int) -> Optional[ModelType]:
+        """Отримання запису за ID"""
+        try:
+            result = await db.execute(select(self.model).filter(self.model.id == id))
+            return result.scalar_one_or_none()
+        except Exception as e:
+            logger.error(f"Error getting {self.model.__name__} with id {id}: {e}")
+            return None
+    
+    async def get_multi(
+        self, 
+        db: AsyncSession, 
+        skip: int = 0, 
+        limit: int = 100,
+        filters: Optional[Dict[str, Any]] = None
+    ) -> List[ModelType]:
+        """Отримання списку записів з фільтрацією"""
+        try:
+            query = select(self.model)
+            
+            if filters:
+                for key, value in filters.items():
+                    if hasattr(self.model, key):
+                        query = query.filter(getattr(self.model, key) == value)
+            
+            query = query.offset(skip).limit(limit)
+            result = await db.execute(query)
+            return result.scalars().all()
+        except Exception as e:
+            logger.error(f"Error getting multiple {self.model.__name__}: {e}")
+            return []
+    
+    async def create(self, db: AsyncSession, obj_in) -> Optional[ModelType]:
+        """Створення нового запису"""
+        try:
+            db_obj = self.model(**obj_in.dict())
+            db.add(db_obj)
+            await db.commit()
+            await db.refresh(db_obj)
+            return db_obj
+        except Exception as e:
+            await db.rollback()
+            logger.error(f"Error creating {self.model.__name__}: {e}")
+            return None
+    
+    async def update(self, db: AsyncSession, db_obj: ModelType, obj_in) -> Optional[ModelType]:
+        """Оновлення запису"""
+        try:
+            update_data = obj_in.dict(exclude_unset=True)
+            for field, value in update_data.items():
+                if hasattr(db_obj, field):
+                    setattr(db_obj, field, value)
+            
+            db.add(db_obj)
+            await db.commit()
+            await db.refresh(db_obj)
+            return db_obj
+        except Exception as e:
+            await db.rollback()
+            logger.error(f"Error updating {self.model.__name__}: {e}")
+            return None
+    
+    async def delete(self, db: AsyncSession, id: int) -> bool:
+        """Видалення запису"""
+        try:
+            result = await db.execute(select(self.model).filter(self.model.id == id))
+            obj = result.scalar_one_or_none()
+            
+            if obj:
+                await db.delete(obj)
+                await db.commit()
+                return True
+            return False
+        except Exception as e:
+            await db.rollback()
+            logger.error(f"Error deleting {self.model.__name__} with id {id}: {e}")
+            return False
+    
+    async def exists(self, db: AsyncSession, id: int) -> bool:
+        """Перевірка існування запису"""
+        try:
+            result = await db.execute(select(self.model).filter(self.model.id == id))
+            return result.scalar_one_or_none() is not None
+        except Exception as e:
+            logger.error(f"Error checking existence of {self.model.__name__}: {e}")
+            return False
+    
+    async def count(self, db: AsyncSession, filters: Optional[Dict[str, Any]] = None) -> int:
+        """Підрахунок кількості записів"""
+        try:
+            query = select(self.model)
+            
+            if filters:
+                for key, value in filters.items():
+                    if hasattr(self.model, key):
+                        query = query.filter(getattr(self.model, key) == value)
+            
+            result = await db.execute(select([query]))
+            return result.scalar()
+        except Exception as e:
+            logger.error(f"Error counting {self.model.__name__}: {e}")
+            return 0
+
+
+#backend/src/utils/constants.py
+from enum import Enum
+
+class CaseStage(str, Enum):
+    """Стадії справи"""
+    CONSULTATION = "consultation"
+    PRE_LITIGATION = "pre_litigation"
+    LITIGATION = "litigation"
+    SETTLEMENT = "settlement"
+    APPEAL = "appeal"
+    COMPLETED = "completed"
+
+class CaseStatus(str, Enum):
+    """Статуси справи"""
+    OPEN = "open"
+    ON_HOLD = "on_hold"
+    CLOSED = "closed"
+    ARCHIVED = "archived"
+
+class UserRole(str, Enum):
+    """Ролі користувачів"""
+    ADMIN = "admin"
+    LAWYER = "lawyer"
+    ASSISTANT = "assistant"
+    PARALEGAL = "paralegal"
+    ACCOUNTANT = "accountant"
+    VIEWER = "viewer"
+
+class DocumentType(str, Enum):
+    """Типи документів"""
+    CONTRACT = "contract"
+    COURT_DOCUMENT = "court_document"
+    EVIDENCE = "evidence"
+    CORRESPONDENCE = "correspondence"
+    REPORT = "report"
+    TEMPLATE = "template"
+
+class NotificationType(str, Enum):
+    """Типи сповіщень"""
+    INFO = "info"
+    WARNING = "warning"
+    ERROR = "error"
+    SUCCESS = "success"
+
+class Priority(str, Enum):
+    """Пріоритети"""
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    URGENT = "urgent"
+
+# Константи для пагінації
+DEFAULT_PAGE_SIZE = 20
+MAX_PAGE_SIZE = 100
+
+# Константи для файлів
+MAX_FILE_SIZE = 100 * 1024 * 1024  # 100MB
+ALLOWED_FILE_TYPES = [
+    "pdf", "doc", "docx", "xls", "xlsx", 
+    "ppt", "pptx", "txt", "jpg", "jpeg", "png"
+]
+
+# Константи для безпеки
+PASSWORD_MIN_LENGTH = 8
+SESSION_TIMEOUT = 3600  # 1 година
+
+# Константи для API
+API_VERSION = "1.0.0"
+API_DESCRIPTION = "Lawyer CRM API - Система управління адвокатською практикою"
+
+
+
+backend/src/utils/helpers.py
+import uuid
+from typing import Union
+from datetime import datetime, date
+import re
+from email_validator import validate_email, EmailNotValidError
+
+def generate_uuid() -> str:
+    """Генерація унікального ідентифікатора"""
+    return str(uuid.uuid4())
+
+def is_valid_uuid(value: str) -> bool:
+    """Перевірка валідності UUID"""
+    try:
+        uuid.UUID(value)
+        return True
+    except ValueError:
+        return False
+
+def format_date(value: Union[datetime, date], format_str: str = "%Y-%m-%d") -> str:
+    """Форматування дати"""
+    if isinstance(value, datetime):
+        return value.strftime(format_str)
+    elif isinstance(value, date):
+        return value.strftime(format_str)
+    return ""
+
+def parse_date(date_string: str, format_str: str = "%Y-%m-%d") -> datetime:
+    """Парсинг дати з рядка"""
+    return datetime.strptime(date_string, format_str)
+
+def validate_email_address(email: str) -> bool:
+    """Валідація email адреси"""
+    try:
+        validate_email(email)
+        return True
+    except EmailNotValidError:
+        return False
+
+def validate_phone_number(phone: str) -> bool:
+    """Валідація номера телефону (український формат)"""
+    pattern = re.compile(r"^\+380\d{9}$")
+    return bool(pattern.match(phone))
+
+def sanitize_filename(filename: str) -> str:
+    """Саніталізація імені файлу"""
+    # Видалення небезпечних символів
+    cleaned = re.sub(r'[^\w\s-]', '', filename)
+    # Заміна пробілів на підкреслення
+    cleaned = re.sub(r'[-\s]+', '_', cleaned)
+    return cleaned.strip('-_')
+
+def format_file_size(size_bytes: int) -> str:
+    """Форматування розміру файлу"""
+    if size_bytes == 0:
+        return "0 B"
+    
+    size_names = ["B", "KB", "MB", "GB"]
+    i = 0
+    while size_bytes >= 1024 and i < len(size_names) - 1:
+        size_bytes /= 1024.0
+        i += 1
+    
+    return f"{size_bytes:.2f} {size_names[i]}"
+
+def truncate_text(text: str, max_length: int = 100, suffix: str = "...") -> str:
+    """Обрізання тексту до максимальної довжини"""
+    if len(text) <= max_length:
+        return text
+    return text[:max_length - len(suffix)] + suffix
+
+def generate_random_password(length: int = 12) -> str:
+    """Генерація випадкового пароля"""
+    import secrets
+    import string
+    
+    alphabet = string.ascii_letters + string.digits + "!@#$%^&*"
+    return ''.join(secrets.choice(alphabet) for _ in range(length))
+
+def camel_to_snake(name: str) -> str:
+    """Перетворення CamelCase в snake_case"""
+    name = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
+    return re.sub('([a-z0-9])([A-Z])', r'\1_\2', name).lower()
+
+def snake_to_camel(name: str) -> str:
+    """Перетворення snake_case в CamelCase"""
+    return ''.join(word.title() for word in name.split('_'))
+
+
+#backend/src/utils/validators.py
+import re
+from typing import Optional
+from datetime import datetime
+
+def validate_ukraine_phone(phone: str) -> bool:
+    """Валідація українського номера телефону"""
+    pattern = re.compile(r"^\+?380\d{9}$")
+    return bool(pattern.match(phone))
+
+def validate_edrpou(edrpou: str) -> bool:
+    """Валідація ЄДРПОУ"""
+    if not edrpou.isdigit() or len(edrpou) != 8:
+        return False
+    
+    # Алгоритм перевірки контрольної цифри ЄДРПОУ
+    coefficients = [1, 2, 3, 4, 5, 6, 7]
+    digits = [int(d) for d in edrpou[:7]]
+    control_sum = sum(d * c for d, c in zip(digits, coefficients)) % 11
+    control_digit = control_sum % 10 if control_sum < 10 else 0
+    
+    return control_digit == int(edrpou[7])
+
+def validate_drfo(drfo: str) -> bool:
+    """Валідація ДРФО"""
+    if not drfo.isdigit() or len(drfo) not in [9, 10]:
+        return False
+    
+    # Спрощена перевірка ДРФО
+    return len(drfo) in [9, 10]
+
+def validate_iban(iban: str) -> bool:
+    """Валідація IBAN"""
+    # Базова перевірка формату українського IBAN
+    pattern = re.compile(r"^UA\d{2}[A-Z]{4}\d{6}[A-Z0-9]{16}$")
+    return bool(pattern.match(iban.replace(" ", "").upper()))
+
+def validate_passport_series(series: str) -> bool:
+    """Валідація серії паспорта"""
+    pattern = re.compile(r"^[A-Z]{2}$")
+    return bool(pattern.match(series.upper()))
+
+def validate_passport_number(number: str) -> bool:
+    """Валідація номера паспорта"""
+    pattern = re.compile(r"^\d{6}$")
+    return bool(pattern.match(number))
+
+def validate_birth_date(date_str: str) -> bool:
+    """Валідація дати народження"""
+    try:
+        birth_date = datetime.strptime(date_str, "%Y-%m-%d")
+        today = datetime.today()
+        age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
+        return 14 <= age <= 120  # Реалістичний вік
+    except ValueError:
+        return False
+
+def validate_postal_code(code: str) -> bool:
+    """Валідація поштового індексу України"""
+    pattern = re.compile(r"^\d{5}$")
+    return bool(pattern.match(code))
+
+def validate_inn(inn: str) -> bool:
+    """Валідація ІПН"""
+    if not inn.isdigit() or len(inn) not in [10, 12]:
+        return False
+    
+    # Спрощена перевірка ІПН
+    return len(inn) in [10, 12]
+
+def validate_legal_entity_name(name: str) -> bool:
+    """Валідація назви юридичної особи"""
+    if len(name) < 2 or len(name) > 255:
+        return False
+    
+    # Дозволені символи для назви
+    pattern = re.compile(r"^[a-zA-Zа-яА-ЯёЁіІїЇєЄ0-9\s\"'\-.,()&]+$", re.UNICODE)
+    return bool(pattern.match(name))
+
+def validate_court_case_number(case_number: str) -> bool:
+    """Валідація номера судової справи"""
+    pattern = re.compile(r"^[0-9а-яА-ЯёЁіІїЇєЄ\-/]+\/[0-9]{4}$", re.UNICODE)
+    return bool(pattern.match(case_number))
+
+
+#SaaS-for-Lawyer/monitoring/prometheus.yml
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'lawyer-crm-backend'
+    static_configs:
+      - targets: ['backend:8000']
+    metrics_path: '/metrics'
+    scrape_interval: 30s
+    scrape_timeout: 10s
+
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:9121']
+    metrics_path: '/metrics'
+
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+    metrics_path: '/metrics'
+
+  - job_name: 'nginx'
+    static_configs:
+      - targets: ['nginx:9113']
+    metrics_path: '/metrics'
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          # - alertmanager:9093
+
+
+#SaaS-for-Lawyer/logging/logstash.conf
+input {
+  beats {
+    port => 5044
+  }
+}
+
+filter {
+  # Парсинг логів FastAPI
+  if [fields][service] == "lawyer-crm-backend" {
+    grok {
+      match => { "message" => "%{TIMESTAMP_ISO8601:timestamp} %{LOGLEVEL:loglevel} %{GREEDYDATA:message}" }
+    }
+    date {
+      match => [ "timestamp", "ISO8601" ]
+    }
+  }
+  
+  # Парсинг логів Nginx
+  if [fields][service] == "nginx" {
+    grok {
+      match => { "message" => "%{COMBINEDAPACHELOG}" }
+    }
+  }
+  
+  # Додавання поля environment
+  mutate {
+    add_field => { "environment" => "%{[fields][environment]}" }
+  }
+}
+
+output {
+  elasticsearch {
+    hosts => ["elasticsearch:9200"]
+    index => "lawyer-crm-logs-%{+YYYY.MM.dd}"
+    user => "elastic"
+    password => "${ELASTIC_PASSWORD}"
+  }
+  
+  # Для debugging
+  stdout { codec => rubydebug }
+}
+
+
+#SaaS-for-Lawyer/logging/filebeat.yml
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /var/log/backend/*.log
+  fields:
+    service: lawyer-crm-backend
+    environment: production
+
+- type: log
+  enabled: true
+  paths:
+    - /var/log/nginx/*.log
+  fields:
+    service: nginx
+    environment: production
+
+processors:
+- add_docker_metadata:
+    host: "unix:///var/run/docker.sock"
+
+- decode_json_fields:
+    fields: ["message"]
+    target: "json"
+    overwrite_keys: true
+
+output.logstash:
+  hosts: ["logstash:5044"]
+
+setup.template.settings:
+  index.number_of_shards: 1
+  index.codec: best_compression
+
+setup.ilm.enabled: false
+
+
+#SaaS-for-Lawyer/nginx/nginx.conf
+user nginx;
+worker_processes auto;
+error_log /var/log/nginx/error.log warn;
+pid /var/run/nginx.pid;
+
+events {
+    worker_connections 1024;
+    use epoll;
+    multi_accept on;
+}
+
+http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    # Основні налаштування
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
+    types_hash_max_size 2048;
+    server_tokens off;
+
+    # Логування
+    log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+                    '$status $body_bytes_sent "$http_referer" '
+                    '"$http_user_agent" "$http_x_forwarded_for" '
+                    'rt=$request_time uct="$upstream_connect_time" '
+                    'uht="$upstream_header_time" urt="$upstream_response_time"';
+
+    access_log /var/log/nginx/access.log main;
+
+    # Ліміти
+    client_max_body_size 100M;
+    client_body_timeout 60;
+    client_header_timeout 60;
+    send_timeout 60;
+
+    # Gzip
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_types
+        text/plain
+        text/css
+        text/xml
+        text/javascript
+        application/json
+        application/javascript
+        application/xml+rss
+        application/atom+xml
+        image/svg+xml;
+
+    # Upstreams
+    upstream backend {
+        server backend:8000;
+        keepalive 32;
+    }
+
+    upstream frontend {
+        server frontend:3000;
+        keepalive 32;
+    }
+
+    # Включення конфігураційних файлів
+    include /etc/nginx/conf.d/*.conf;
+}
+
+
+#SaaS-for-Lawyer/nginx/conf.d/backend.conf
+server {
+    listen 8000;
+    server_name api.lawyer-crm.com;
+    
+    # Security headers
+    add_header X-Frame-Options DENY always;
+    add_header X-Content-Type-Options nosniff always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    
+    # Rate limiting
+    limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
+    
+    location / {
+        limit_req zone=api burst=20 nodelay;
+        
+        proxy_pass http://backend;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+        
+        # Таймаути
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+    }
+    
+    location /health {
+        access_log off;
+        proxy_pass http://backend/health;
+    }
+    
+    location /metrics {
+        # Захист метрик
+        allow 10.0.0.0/8;
+        allow 172.16.0.0/12;
+        allow 192.168.0.0/16;
+        deny all;
+        
+        proxy_pass http://backend/metrics;
+    }
+    
+    location /docs {
+        # Документація API
+        proxy_pass http://backend/docs;
+    }
+    
+    location /static/ {
+        # Статичні файли
+        alias /app/static/;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+}
+
+
+#SaaS-for-Lawyer/nginx/conf.d/frontend.conf
+server {
+    listen 80;
+    server_name lawyer-crm.com www.lawyer-crm.com;
+    
+    root /usr/share/nginx/html;
+    index index.html;
+    
+    # Security headers
+    add_header X-Frame-Options DENY always;
+    add_header X-Content-Type-Options nosniff always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    
+    # Gzip для статичних файлів
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        access_log off;
+    }
+    
+    # SPA routing
+    location / {
+        try_files $uri $uri/ /index.html;
+        expires -1;
+        add_header Cache-Control "no-cache, no-store, must-revalidate";
+    }
+    
+    # API проксі
+    location /api/ {
+        proxy_pass http://backend:8000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+    
+    # Health check
+    location /health {
+        access_log off;
+        return 200 "healthy\n";
+        add_header Content-Type text/plain;
+    }
+    
+    # Заборонити доступ до .env та інших конфіденційних файлів
+    location ~ /\. {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+    
+    location ~* \.(env|git|htaccess|htpasswd)$ {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+}
+
+
+#SaaS-for-Lawyer/backend/Dockerfile.dev
+FROM python:3.11-slim
+
+# Встановлення системних залежностей
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    libpq-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Створення користувача
+RUN useradd --create-home --shell /bin/bash app
+
+# Робоча директорія
+WORKDIR /app
+
+# Копіювання файлів залежностей
+COPY pyproject.toml poetry.lock* ./
+
+# Встановлення Poetry
+RUN pip install --no-cache-dir poetry
+
+# Встановлення залежностей
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-dev --no-interaction --no-ansi
+
+# Копіювання джерельного коду
+COPY . .
+
+# Зміна власника
+RUN chown -R app:app /app
+
+# Перехід до непривілейованого користувача
+USER app
+
+# Відкриття порту
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Команда запуску для development
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+
+
+#SaaS-for-Lawyer/backend/setup.cfg
+[metadata]
+name = lawyer-crm-backend
+version = 1.0.0
+description = FastAPI backend for Lawyer CRM SaaS
+author = Dmytro Laposha
+author_email = d.laposha@gmail.com
+license = MIT
+keywords = fastapi, lawyer, crm, saas
+
+[options]
+packages = find:
+python_requires = >=3.11
+install_requires =
+    fastapi>=0.104.0
+    uvicorn[standard]>=0.24.0
+    sqlalchemy>=2.0.0
+    alembic>=1.12.0
+    psycopg2-binary>=2.9.0
+    python-jose[cryptography]>=3.3.0
+    passlib[bcrypt]>=1.7.0
+    python-multipart>=0.0.0
+    python-dotenv>=1.0.0
+    email-validator>=2.0.0
+    pydantic-settings>=2.0.0
+
+[options.extras_require]
+dev =
+    pytest>=7.0.0
+    pytest-asyncio>=0.21.0
+    black>=23.0.0
+    flake8>=6.0.0
+    mypy>=1.0.0
+    pre-commit>=3.0.0
+    httpx>=0.24.0
+
+[options.packages.find]
+where = src
+exclude = 
+    tests*
+    test*
+    docs*
+
+[flake8]
+max-line-length = 88
+extend-ignore = E203, W503
+exclude = .git,__pycache__,build,dist,.venv,venv
+
+[mypy]
+python_version = 3.11
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[egg_info]
+tag_build = 
+tag_date = 0
+
+
+#SaaS-for-Lawyer/backend/.env.example
+# ==================== БЕЗПЕКА ====================
+SECRET_KEY=your_very_long_secret_key_change_in_production_32_chars_min
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+REFRESH_TOKEN_EXPIRE_DAYS=7
+
+# ==================== БАЗА ДАНИХ ====================
+POSTGRES_DB=lawyer_crm
+POSTGRES_USER=crm_user
+POSTGRES_PASSWORD=strong_password_change_this
+POSTGRES_HOST=db
+DATABASE_URL=postgresql://crm_user:strong_password_change_this@db:5432/lawyer_crm
+DATABASE_POOL_SIZE=20
+DATABASE_MAX_OVERFLOW=30
+
+# ==================== REDIS ====================
+REDIS_URL=redis://redis:6379/0
+REDIS_PASSWORD=redis_password_change_this
+REDIS_CACHE_TTL=300
+
+# ==================== MINIO/S3 ====================
+MINIO_ENDPOINT=http://minio:9000
+MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=strong_minio_password
+MINIO_BUCKET=lawyer-crm
+MINIO_SECURE=false
+
+# ==================== SMTP/EMAIL ====================
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USER=your_email@gmail.com
+SMTP_PASSWORD=your_app_password
+EMAIL_FROM=noreply@lawyer-crm.com
+
+# ==================== ДОДАТОК ====================
+ENVIRONMENT=development
+DEBUG=true
+HOST=0.0.0.0
+PORT=8000
+LOG_LEVEL=INFO
+
+# ==================== API ====================
+API_V1_STR=/api/v1
+
+# ==================== CORS ====================
+CORS_ORIGINS=["http://localhost:3000", "http://127.0.0.1:3000", "http://frontend:3000"]
+ALLOWED_HOSTS=["localhost", "127.0.0.1", "backend", "frontend"]
+
+# ==================== Celery ====================
+CELERY_BROKER_URL=redis://redis:6379/1
+CELERY_RESULT_BACKEND=redis://redis:6379/2
+
+# ==================== МОНІТОРИНГ ====================
+PROMETHEUS_MULTIPROC_DIR=/tmp/prometheus
+METRICS_ENABLED=true
+
+# ==================== ДОДАТКОВІ НАЛАШТУВАННЯ ====================
+UPLOAD_MAX_FILE_SIZE=104857600  # 100MB
+SESSION_TIMEOUT=3600
+PASSWORD_RESET_TIMEOUT=3600
+
+
+
+SaaS-for-Lawyer/backend/init-db/init.sql
+-- Ініціалізація бази даних для Lawyer CRM
+
+-- Створення розширень
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pg_trgm";
+
+-- Створення додаткових типів даних (якщо потрібно)
+CREATE TYPE user_role AS ENUM (
+    'admin',
+    'lawyer', 
+    'assistant',
+    'paralegal',
+    'accountant',
+    'viewer'
+);
+
+CREATE TYPE case_status AS ENUM (
+    'new',
+    'in_progress',
+    'review',
+    'completed',
+    'closed',
+    'archived'
+);
+
+CREATE TYPE priority_level AS ENUM (
+    'low',
+    'medium',
+    'high',
+    'urgent'
+);
+
+CREATE TYPE document_type AS ENUM (
+    'contract',
+    'court_document',
+    'evidence',
+    'correspondence',
+    'report',
+    'template'
+);
+
+-- Додаткові функції
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+-- Індексування для поліпшення продуктивності
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
+CREATE INDEX IF NOT EXISTS idx_cases_status ON cases(status);
+CREATE INDEX IF NOT EXISTS idx_cases_client_id ON cases(client_id);
+CREATE INDEX IF NOT EXISTS idx_cases_lawyer_id ON cases(lawyer_id);
+CREATE INDEX IF NOT EXISTS idx_documents_case_id ON documents(case_id);
+CREATE INDEX IF NOT EXISTS idx_documents_type ON documents(type);
+
+-- Коментарі до таблиць (для документації)
+COMMENT ON TABLE users IS 'Користувачі системи (юристи, адміністратори, клієнти)';
+COMMENT ON TABLE clients IS 'Клієнти юридичної фірми';
+COMMENT ON TABLE cases IS 'Юридичні справи';
+COMMENT ON TABLE documents IS 'Документи, пов''язані з справами';
+
+
+#SaaS-for-Lawyer/backend/init-db/init.sql
+-- Ініціалізація бази даних для Lawyer CRM
+
+-- Створення розширень
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pg_trgm";
+
+-- Створення додаткових типів даних (якщо потрібно)
+CREATE TYPE user_role AS ENUM (
+    'admin',
+    'lawyer', 
+    'assistant',
+    'paralegal',
+    'accountant',
+    'viewer'
+);
+
+CREATE TYPE case_status AS ENUM (
+    'new',
+    'in_progress',
+    'review',
+    'completed',
+    'closed',
+    'archived'
+);
+
+CREATE TYPE priority_level AS ENUM (
+    'low',
+    'medium',
+    'high',
+    'urgent'
+);
+
+CREATE TYPE document_type AS ENUM (
+    'contract',
+    'court_document',
+    'evidence',
+    'correspondence',
+    'report',
+    'template'
+);
+
+-- Додаткові функції
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+-- Індексування для поліпшення продуктивності
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
+CREATE INDEX IF NOT EXISTS idx_cases_status ON cases(status);
+CREATE INDEX IF NOT EXISTS idx_cases_client_id ON cases(client_id);
+CREATE INDEX IF NOT EXISTS idx_cases_lawyer_id ON cases(lawyer_id);
+CREATE INDEX IF NOT EXISTS idx_documents_case_id ON documents(case_id);
+CREATE INDEX IF NOT EXISTS idx_documents_type ON documents(type);
+
+-- Коментарі до таблиць (для документації)
+COMMENT ON TABLE users IS 'Користувачі системи (юристи, адміністратори, клієнти)';
+COMMENT ON TABLE clients IS 'Клієнти юридичної фірми';
+COMMENT ON TABLE cases IS 'Юридичні справи';
+COMMENT ON TABLE documents IS 'Документи, пов'язані з справами';
+
+
+#SaaS-for-Lawyer/backend/postgresql.conf
+# Конфігурація PostgreSQL для Lawyer CRM
+
+# Налаштування пам'яті
+shared_buffers = 256MB
+effective_cache_size = 1GB
+work_mem = 4MB
+maintenance_work_mem = 64MB
+
+# Налаштування перевірок
+checkpoint_timeout = 15min
+checkpoint_completion_target = 0.9
+wal_buffers = 16MB
+default_statistics_target = 100
+
+# Налаштування журналювання
+logging_collector = on
+log_directory = 'pg_log'
+log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log'
+log_rotation_age = 1d
+log_rotation_size = 100MB
+log_min_duration_statement = 1000  # Логувати запити довші за 1 секунду
+
+# Налаштування зв'язку
+listen_addresses = '*'
+max_connections = 200
+superuser_reserved_connections = 3
+
+# Налаштування автентифікації
+password_encryption = scram-sha-256
+
+# Налаштування архівування
+archive_mode = off
+
+# Налаштування пошуку
+shared_preload_libraries = 'pg_stat_statements'
+pg_stat_statements.track = all
+
+# Оптимізація для SSD
+random_page_cost = 1.1
+effective_io_concurrency = 200
+
+
+#SaaS-for-Lawyer/backend/redis.conf
+# Конфігурація Redis для Lawyer CRM
+
+# Основні налаштування
+bind 0.0.0.0
+port 6379
+timeout 0
+tcp-keepalive 300
+
+# Безпека
+requirepass your_redis_password_change_this
+
+# Обмеження пам'яті
+maxmemory 512mb
+maxmemory-policy allkeys-lru
+maxmemory-samples 5
+
+# Стейджінг
+save 900 1
+save 300 10
+save 60 10000
+
+# Налаштування AOF
+appendonly yes
+appendfilename "appendonly.aof"
+appendfsync everysec
+no-appendfsync-on-rewrite no
+auto-aof-rewrite-percentage 100
+auto-aof-rewrite-min-size 64mb
+
+# Налаштування клієнтів
+maxclients 10000
+
+# Налаштування продуктивності
+hz 10
+
+
+#SaaS-for-Lawyer/backend/celery.conf
+[celery]
+# Основні налаштування
+app = src.celery:celery_app
+broker = redis://:redis_password_change_this@redis:6379/1
+result_backend = redis://:redis_password_change_this@redis:6379/2
+
+# Налаштування worker
+concurrency = 4
+prefetch_multiplier = 4
+task_acks_late = True
+worker_max_tasks_per_child = 1000
+worker_disable_rate_limits = False
+
+# Налаштування серіалізації
+task_serializer = json
+result_serializer = json
+accept_content = [json]
+
+# Налаштування часового поясу
+timezone = Europe/Kiev
+enable_utc = False
+
+# Налаштування планувальника
+beat_schedule_filename = /var/run/celery/celerybeat-schedule
+beat_scheduler = celery.beat.PersistentScheduler
+
+# Налаштування логування
+logfile = /var/log/celery/worker.log
+loglevel = INFO
+
+# Налаштування моніторингу
+worker_send_task_events = True
+task_send_sent_event = True
+
+# Налаштування ретрі
+task_default_retry_delay = 180
+task_max_retries = 3
+
+# Налаштування безпеки
+worker_redirect_stdouts = True
+worker_hijack_root_logger = False
+
+# Черги
+task_default_queue = default
+task_routes = {
+    'src.celery.tasks.send_email': {'queue': 'emails'},
+    'src.celery.tasks.generate_report': {'queue': 'reports'},
+    'src.celery.tasks.backup_database': {'queue': 'maintenance'},
+}
+
+[beat]
+# Розклад завдань
+schedule = {
+    'cleanup-sessions': {
+        'task': 'src.celery.tasks.cleanup_old_sessions',
+        'schedule': 86400.0,  # Щодня
+    },
+    'send-daily-reports': {
+        'task': 'src.celery.tasks.send_daily_reports',
+        'schedule': 3600.0,  # Кожну годину
+    },
+}
+
+#SaaS-for-Lawyer/backend/src/core/logging.py
+import logging
+import logging.config
+import sys
+from pathlib import Path
+import json
+from typing import Dict, Any
+
+from .config import settings
+
+def setup_logging() -> None:
+    """Налаштування системи логування"""
+    
+    log_config = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "formatters": {
+            "standard": {
+                "format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+                "datefmt": "%Y-%m-%d %H:%M:%S"
+            },
+            "json": {
+                "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
+                "fmt": "%(asctime)s %(levelname)s %(name)s %(message)s"
+            },
+            "detailed": {
+                "format": "%(asctime)s [%(levelname)s] %(name)s [%(filename)s:%(lineno)d]: %(message)s"
+            }
+        },
+        "handlers": {
+            "default": {
+                "level": "INFO",
+                "formatter": "standard",
+                "class": "logging.StreamHandler",
+                "stream": sys.stdout,
+            },
+            "file": {
+                "level": "INFO",
+                "formatter": "detailed",
+                "class": "logging.handlers.RotatingFileHandler",
+                "filename": f"/app/logs/{settings.ENVIRONMENT}.log",
+                "maxBytes": 10485760,  # 10MB
+                "backupCount": 5,
+                "encoding": "utf8",
+            },
+            "error_file": {
+                "level": "ERROR",
+                "formatter": "detailed",
+                "class": "logging.handlers.RotatingFileHandler",
+                "filename": f"/app/logs/{settings.ENVIRONMENT}_error.log",
+                "maxBytes": 10485760,  # 10MB
+                "backupCount": 5,
+                "encoding": "utf8",
+            },
+            "json_file": {
+                "level": "INFO",
+                "formatter": "json",
+                "class": "logging.handlers.RotatingFileHandler",
+                "filename": f"/app/logs/{settings.ENVIRONMENT}_json.log",
+                "maxBytes": 10485760,  # 10MB
+                "backupCount": 5,
+                "encoding": "utf8",
+            }
+        },
+        "loggers": {
+            "": {  # Root logger
+                "handlers": ["default", "file", "error_file"],
+                "level": "INFO",
+                "propagate": False
+            },
+            "src": {
+                "handlers": ["default", "file", "json_file"],
+                "level": "DEBUG" if settings.DEBUG else "INFO",
+                "propagate": False
+            },
+            "uvicorn": {
+                "handlers": ["default", "file"],
+                "level": "INFO",
+                "propagate": False
+            },
+            "sqlalchemy.engine": {
+                "handlers": ["default"],
+                "level": "WARNING",
+                "propagate": False
+            },
+            "celery": {
+                "handlers": ["default", "file"],
+                "level": "INFO",
+                "propagate": False
+            }
+        }
+    }
+    
+    # Створення директорії для логів
+    log_dir = Path("/app/logs")
+    log_dir.mkdir(exist_ok=True)
+    
+    # Застосування конфігурації
+    logging.config.dictConfig(log_config)
+
+def get_logger(name: str) -> logging.Logger:
+    """Отримання логера з вказаним ім'ям"""
+    return logging.getLogger(name)
+
+# Створення основного логера
+logger = get_logger("lawyer-crm")
+
+class RequestLogger:
+    """Логер для HTTP запитів"""
+    
+    def __init__(self):
+        self.logger = get_logger("request")
+    
+    def log_request(self, method: str, path: str, status_code: int, duration: float):
+        """Логування HTTP запиту"""
+        self.logger.info(
+            "Request completed",
+            extra={
+                "method": method,
+                "path": path,
+                "status_code": status_code,
+                "duration": duration,
+                "type": "http_request"
+            }
+        )
+    
+    def log_error(self, method: str, path: str, error: Exception):
+        """Логування помилки запиту"""
+        self.logger.error(
+            "Request failed",
+            extra={
+                "method": method,
+                "path": path,
+                "error": str(error),
+                "type": "http_error"
+            }
+        )
+
+# Глобальний екземпляр логера запитів
+request_logger = RequestLogger()
+
+
+#SaaS-for-Lawyer/backend/src/repositories/user_repository.py
+from typing import List, Optional, Dict, Any
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from sqlalchemy import or_, and_
+
+from .base import BaseRepository
+from ..models.user import User
+from ..schemas.user import UserCreate, UserUpdate
+
+class UserRepository(BaseRepository[User]):
+    """Репозиторій для роботи з користувачами"""
+    
+    def __init__(self):
+        super().__init__(User)
+    
+    async def get_by_email(self, db: AsyncSession, email: str) -> Optional[User]:
+        """Отримання користувача за email"""
+        try:
+            result = await db.execute(
+                select(User).filter(User.email == email)
+            )
+            return result.scalar_one_or_none()
+        except Exception as e:
+            self.logger.error(f"Error getting user by email {email}: {e}")
+            return None
+    
+    async def get_by_username(self, db: AsyncSession, username: str) -> Optional[User]:
+        """Отримання користувача за іменем користувача"""
+        try:
+            result = await db.execute(
+                select(User).filter(User.username == username)
+            )
+            return result.scalar_one_or_none()
+        except Exception as e:
+            self.logger.error(f"Error getting user by username {username}: {e}")
+            return None
+    
+    async def search(
+        self, 
+        db: AsyncSession, 
+        query: str,
+        skip: int = 0, 
+        limit: int = 100
+    ) -> List[User]:
+        """Пошук користувачів за іменем, email або іменем користувача"""
+        try:
+            search_filter = or_(
+                User.email.ilike(f"%{query}%"),
+                User.username.ilike(f"%{query}%"),
+                User.first_name.ilike(f"%{query}%"),
+                User.last_name.ilike(f"%{query}%")
+            )
+            
+            result = await db.execute(
+                select(User)
+                .filter(search_filter)
+                .offset(skip)
+                .limit(limit)
+            )
+            return result.scalars().all()
+        except Exception as e:
+            self.logger.error(f"Error searching users with query {query}: {e}")
+            return []
+    
+    async def get_active_users(self, db: AsyncSession) -> List[User]:
+        """Отримання активних користувачів"""
+        try:
+            result = await db.execute(
+                select(User).filter(User.is_active == True)
+            )
+            return result.scalars().all()
+        except Exception as e:
+            self.logger.error("Error getting active users: {e}")
+            return []
+    
+    async def get_users_by_role(self, db: AsyncSession, role: str) -> List[User]:
+        """Отримання користувачів за роллю"""
+        try:
+            result = await db.execute(
+                select(User).filter(User.role == role, User.is_active == True)
+            )
+            return result.scalars().all()
+        except Exception as e:
+            self.logger.error(f"Error getting users by role {role}: {e}")
+            return []
+    
+    async def update_last_login(self, db: AsyncSession, user_id: int) -> bool:
+        """Оновлення часу останнього входу"""
+        try:
+            from sqlalchemy import update
+            from datetime import datetime
+            
+            stmt = (
+                update(User)
+                .where(User.id == user_id)
+                .values(last_login=datetime.utcnow())
+            )
+            await db.execute(stmt)
+            await db.commit()
+            return True
+        except Exception as e:
+            await db.rollback()
+            self.logger.error(f"Error updating last login for user {user_id}: {e}")
+            return False
+    
+    async def deactivate_user(self, db: AsyncSession, user_id: int) -> bool:
+        """Деактивація користувача"""
+        try:
+            user = await self.get(db, user_id)
+            if user:
+                user.is_active = False
+                await db.commit()
+                return True
+            return False
+        except Exception as e:
+            await db.rollback()
+            self.logger.error(f"Error deactivating user {user_id}: {e}")
+            return False
+    
+    async def get_user_stats(self, db: AsyncSession) -> Dict[str, Any]:
+        """Отримання статистики користувачів"""
+        try:
+            from sqlalchemy import func
+            
+            # Загальна кількість користувачів
+            total_result = await db.execute(select(func.count(User.id)))
+            total = total_result.scalar()
+            
+            # Активні користувачі
+            active_result = await db.execute(
+                select(func.count(User.id)).filter(User.is_active == True)
+            )
+            active = active_result.scalar()
+            
+            # Користувачі за ролями
+            roles_result = await db.execute(
+                select(User.role, func.count(User.id))
+                .group_by(User.role)
+            )
+            roles_stats = dict(roles_result.all())
+            
+            return {
+                "total": total,
+                "active": active,
+                "inactive": total - active,
+                "by_role": roles_stats
+            }
+        except Exception as e:
+            self.logger.error(f"Error getting user stats: {e}")
+            return {}
+
+
+#SaaS-for-Lawyer/backend/src/repositories/case_repository.py
+from typing import List, Optional, Dict, Any
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from sqlalchemy import or_, and_, desc, asc
+from datetime import datetime, date
+
+from .base import BaseRepository
+from ..models.case import Case
+from ..models.user import User
+from ..models.client import Client
+from ..schemas.case import CaseCreate, CaseUpdate
+from ..utils.constants import CaseStatus, CaseStage, Priority
+
+class CaseRepository(BaseRepository[Case]):
+    """Репозиторій для роботи з справами"""
+    
+    def __init__(self):
+        super().__init__(Case)
+    
+    async def get_with_details(self, db: AsyncSession, case_id: int) -> Optional[Case]:
+        """Отримання справи з деталями клієнта та юриста"""
+        try:
+            result = await db.execute(
+                select(Case)
+                .options(
+                    selectinload(Case.client),
+                    selectinload(Case.lawyer)
+                )
+                .filter(Case.id == case_id)
+            )
+            return result.scalar_one_or_none()
+        except Exception as e:
+            self.logger.error(f"Error getting case {case_id} with details: {e}")
+            return None
+    
+    async def get_cases_by_lawyer(
+        self, 
+        db: AsyncSession, 
+        lawyer_id: int,
+        skip: int = 0, 
+        limit: int = 100
+    ) -> List[Case]:
+        """Отримання справ за юристом"""
+        try:
+            result = await db.execute(
+                select(Case)
+                .filter(Case.lawyer_id == lawyer_id)
+                .order_by(desc(Case.created_at))
+                .offset(skip)
+                .limit(limit)
+            )
+            return result.scalars().all()
+        except Exception as e:
+            self.logger.error(f"Error getting cases for lawyer {lawyer_id}: {e}")
+            return []
+    
+    async def get_cases_by_client(
+        self, 
+        db: AsyncSession, 
+        client_id: int,
+        skip: int = 0, 
+        limit: int = 100
+    ) -> List[Case]:
+        """Отримання справ за клієнтом"""
+        try:
+            result = await db.execute(
+                select(Case)
+                .filter(Case.client_id == client_id)
+                .order_by(desc(Case.created_at))
+                .offset(skip)
+                .limit(limit)
+            )
+            return result.scalars().all()
+        except Exception as e:
+            self.logger.error(f"Error getting cases for client {client_id}: {e}")
+            return []
+    
+    async def search_cases(
+        self, 
+        db: AsyncSession, 
+        query: str,
+        skip: int = 0, 
+        limit: int = 100
+    ) -> List[Case]:
+        """Пошук справ за назвою, описом або номером справи"""
+        try:
+            search_filter = or_(
+                Case.title.ilike(f"%{query}%"),
+                Case.description.ilike(f"%{query}%"),
+                Case.case_number.ilike(f"%{query}%")
+            )
+            
+            result = await db.execute(
+                select(Case)
+                .filter(search_filter)
+                .order_by(desc(Case.created_at))
+                .offset(skip)
+                .limit(limit)
+            )
+            return result.scalars().all()
+        except Exception as e:
+            self.logger.error(f"Error searching cases with query {query}: {e}")
+            return []
+    
+    async def get_cases_by_status(
+        self, 
+        db: AsyncSession, 
+        status: CaseStatus,
+        skip: int = 0, 
+        limit: int = 100
+    ) -> List[Case]:
+        """Отримання справ за статусом"""
+        try:
+            result = await db.execute(
+                select(Case)
+                .filter(Case.status == status)
+                .order_by(desc(Case.created_at))
+                .offset(skip)
+                .limit(limit)
+            )
+            return result.scalars().all()
+        except Exception as e:
+            self.logger.error(f"Error getting cases with status {status}: {e}")
+            return []
+    
+    async def get_cases_by_stage(
+        self, 
+        db: AsyncSession, 
+        stage: CaseStage,
+        skip: int = 0, 
+        limit: int = 100
+    ) -> List[Case]:
+        """Отримання справ за стадією"""
+        try:
+            result = await db.execute(
+                select(Case)
+                .filter(Case.stage == stage)
+                .order_by(desc(Case.created_at))
+                .offset(skip)
+                .limit(limit)
+            )
+            return result.scalars().all()
+        except Exception as e:
+            self.logger.error(f"Error getting cases with stage {stage}: {e}")
+            return []
+    
+    async def get_urgent_cases(self, db: AsyncSession) -> List[Case]:
+        """Отримання термінових справ"""
+        try:
+            result = await db.execute(
+                select(Case)
+                .filter(
+                    Case.priority == Priority.URGENT,
+                    Case.status == CaseStatus.OPEN
+                )
+                .order_by(asc(Case.deadline))
+            )
+            return result.scalars().all()
+        except Exception as e:
+            self.logger.error("Error getting urgent cases: {e}")
+            return []
+    
+    async def get_cases_with_upcoming_deadlines(
+        self, 
+        db: AsyncSession, 
+        days: int = 7
+    ) -> List[Case]:
+        """Отримання справ з наближеними дедлайнами"""
+        try:
+            from datetime import timedelta
+            cutoff_date = datetime.utcnow() + timedelta(days=days)
+            
+            result = await db.execute(
+                select(Case)
+                .filter(
+                    Case.deadline <= cutoff_date,
+                    Case.status == CaseStatus.OPEN
+                )
+                .order_by(asc(Case.deadline))
+            )
+            return result.scalars().all()
+        except Exception as e:
+            self.logger.error(f"Error getting cases with deadlines in {days} days: {e}")
+            return []
+    
+    async def get_case_stats(self, db: AsyncSession, lawyer_id: Optional[int] = None) -> Dict[str, Any]:
+        """Отримання статистики справ"""
+        try:
+            from sqlalchemy import func
+            
+            base_query = select(Case)
+            if lawyer_id:
+                base_query = base_query.filter(Case.lawyer_id == lawyer_id)
+            
+            # Загальна кількість справ
+            total_result = await db.execute(select(func.count(Case.id)).select_from(base_query))
+            total = total_result.scalar()
+            
+            # Справи за статусами
+            status_result = await db.execute(
+                select(Case.status, func.count(Case.id))
+                .group_by(Case.status)
+            )
+            status_stats = dict(status_result.all())
+            
+            # Справи за стадіями
+            stage_result = await db.execute(
+                select(Case.stage, func.count(Case.id))
+                .group_by(Case.stage)
+            )
+            stage_stats = dict(stage_result.all())
+            
+            # Справи за пріоритетами
+            priority_result = await db.execute(
+                select(Case.priority, func.count(Case.id))
+                .group_by(Case.priority)
+            )
+            priority_stats = dict(priority_result.all())
+            
+            return {
+                "total": total,
+                "by_status": status_stats,
+                "by_stage": stage_stats,
+                "by_priority": priority_stats
+            }
+        except Exception as e:
+            self.logger.error(f"Error getting case stats: {e}")
+            return {}
+
+
+#SaaS-for-Lawyer/backend/src/repositories/client_repository.py
+from typing import List, Optional, Dict, Any
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from sqlalchemy import or_, and_, desc
+from datetime import datetime
+
+from .base import BaseRepository
+from ..models.client import Client
+from ..models.case import Case
+from ..schemas.client import ClientCreate, ClientUpdate
+
+class ClientRepository(BaseRepository[Client]):
+    """Репозиторій для роботи з клієнтами"""
+    
+    def __init__(self):
+        super().__init__(Client)
+    
+    async def get_with_cases(self, db: AsyncSession, client_id: int) -> Optional[Client]:
+        """Отримання клієнта з його справами"""
+        try:
+            result = await db.execute(
+                select(Client)
+                .options(selectinload(Client.cases))
+                .filter(Client.id == client_id)
+            )
+            return result.scalar_one_or_none()
+        except Exception as e:
+            self.logger.error(f"Error getting client {client_id} with cases: {e}")
+            return None
+    
+    async def search_clients(
+        self, 
+        db: AsyncSession, 
+        query: str,
+        skip: int = 0, 
+        limit: int = 100
+    ) -> List[Client]:
+        """Пошук клієнтів за іменем, email або телефоном"""
+        try:
+            search_filter = or_(
+                Client.first_name.ilike(f"%{query}%"),
+                Client.last_name.ilike(f"%{query}%"),
+                Client.email.ilike(f"%{query}%"),
+                Client.phone.ilike(f"%{query}%"),
+                Client.company_name.ilike(f"%{query}%")
+            )
+            
+            result = await db.execute(
+                select(Client)
+                .filter(search_filter)
+                .order_by(desc(Client.created_at))
+                .offset(skip)
+                .limit(limit)
+            )
+            return result.scalars().all()
+        except Exception as e:
+            self.logger.error(f"Error searching clients with query {query}: {e}")
+            return []
+    
+    async def get_clients_by_type(
+        self, 
+        db: AsyncSession, 
+        client_type: str,
+        skip: int = 0, 
+        limit: int = 100
+    ) -> List[Client]:
+        """Отримання клієнтів за типом (фіз/юр особа)"""
+        try:
+            result = await db.execute(
+                select(Client)
+                .filter(Client.client_type == client_type)
+                .order_by(desc(Client.created_at))
+                .offset(skip)
+                .limit(limit)
+            )
+            return result.scalars().all()
+        except Exception as e:
+            self.logger.error(f"Error getting clients by type {client_type}: {e}")
+            return []
+    
+    async def get_active_clients(self, db: AsyncSession) -> List[Client]:
+        """Отримання активних клієнтів (з хоча б однією активною справою)"""
+        try:
+            result = await db.execute(
+                select(Client)
+                .join(Client.cases)
+                .filter(Case.status == 'open')
+                .distinct()
+            )
+            return result.scalars().all()
+        except Exception as e:
+            self.logger.error("Error getting active clients: {e}")
+            return []
+    
+    async def get_clients_with_recent_activity(
+        self, 
+        db: AsyncSession, 
+        days: int = 30
+    ) -> List[Client]:
+        """Отримання клієнтів з нещодавньою активністю"""
+        try:
+            from datetime import timedelta
+            cutoff_date = datetime.utcnow() - timedelta(days=days)
+            
+            result = await db.execute(
+                select(Client)
+                .join(Client.cases)
+                .filter(Case.updated_at >= cutoff_date)
+                .distinct()
+            )
+            return result.scalars().all()
+        except Exception as e:
+            self.logger.error(f"Error getting clients with recent activity: {e}")
+            return []
+    
+    async def get_client_stats(self, db: AsyncSession) -> Dict[str, Any]:
+        """Отримання статистики клієнтів"""
+        try:
+            from sqlalchemy import func
+            
+            # Загальна кількість клієнтів
+            total_result = await db.execute(select(func.count(Client.id)))
+            total = total_result.scalar()
+            
+            # Клієнти за типом
+            type_result = await db.execute(
+                select(Client.client_type, func.count(Client.id))
+                .group_by(Client.client_type)
+            )
+            type_stats = dict(type_result.all())
+            
+            # Активні клієнти
+            active_result = await db.execute(
+                select(func.count(Client.id.distinct()))
+                .select_from(Client)
+                .join(Case)
+                .filter(Case.status == 'open')
+            )
+            active = active_result.scalar()
+            
+            # Клієнти за місяцем реєстрації
+            monthly_result = await db.execute(
+                select(
+                    func.date_trunc('month', Client.created_at).label('month'),
+                    func.count(Client.id)
+                )
+                .group_by('month')
+                .order_by('month')
+            )
+            monthly_stats = {str(row.month): row.count for row in monthly_result}
+            
+            return {
+                "total": total,
+                "active": active,
+                "inactive": total - active,
+                "by_type": type_stats,
+                "monthly_registrations": monthly_stats
+            }
+        except Exception as e:
+            self.logger.error(f"Error getting client stats: {e}")
+            return {}
+    
+    async def update_client_status(self, db: AsyncSession, client_id: int, is_active: bool) -> bool:
+        """Оновлення статусу клієнта"""
+        try:
+            client = await self.get(db, client_id)
+            if client:
+                client.is_active = is_active
+                await db.commit()
+                return True
+            return False
+        except Exception as e:
+            await db.rollback()
+            self.logger.error(f"Error updating client {client_id} status: {e}")
+            return False
+    
+    async def get_client_cases_count(self, db: AsyncSession, client_id: int) -> Dict[str, int]:
+        """Отримання кількості справ клієнта за статусами"""
+        try:
+            from sqlalchemy import func
+            
+            result = await db.execute(
+                select(Case.status, func.count(Case.id))
+                .filter(Case.client_id == client_id)
+                .group_by(Case.status)
+            )
+            return dict(result.all())
+        except Exception as e:
+            self.logger.error(f"Error getting cases count for client {client_id}: {e}")
+            return {}
+
+# backend/src/main.py
+import os
+import logging
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, Depends, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.redis import RedisBackend
+from redis import asyncio as aioredis
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import QueuePool
+
+from .core.config import settings
+from .core.database import engine, Base, get_db
+from .core.security import security_service
+from .api.v1.router import api_router
+
+# Налаштування логування
+logging.basicConfig(
+    level=getattr(logging, settings.LOG_LEVEL),
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Контекстний менеджер життєвого циклу додатку"""
+    # Створення таблиць при запуску
+    logger.info("Creating database tables...")
+    Base.metadata.create_all(bind=engine)
+    
+    # Ініціалізація Prometheus
+    if settings.METRICS_ENABLED:
+        prometheus_client.start_http_server(8001)
+    
+    logger.info("Application startup complete")
+    yield
+    logger.info("Application shutdown")
+
+app = FastAPI(
+    title="Lawyer CRM API",
+    description="SaaS для управління юридичними справами",
+    version="2.0.0",
+    docs_url="/docs" if settings.DEBUG else None,
+    redoc_url="/redoc" if settings.DEBUG else None,
+    lifespan=lifespan
+)
+
+# Middleware
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=settings.ALLOWED_HOSTS
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    """Middleware для вимірювання часу виконання запитів"""
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = str(process_time)
+    return response
+
+# Обробка винятків
+@app.exception_handler(CustomException)
+async def custom_exception_handler(request: Request, exc: CustomException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "error": exc.error,
+            "message": exc.message,
+            "detail": exc.detail
+        }
+    )
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=422,
+        content={
+            "error": "Validation Error",
+            "message": "Invalid request data",
+            "detail": exc.errors()
+        }
+    )
+
+# Instrumentation для моніторингу
+if settings.METRICS_ENABLED:
+    Instrumentator().instrument(app).expose(app)
+
+# Маршрути
+app.include_router(api_router, prefix=settings.API_V1_STR)
+
+# Health check endpoint
+@app.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    return {
+        "status": "healthy",
+        "version": "2.0.0",
+        "environment": settings.ENVIRONMENT
+    }
+
+@app.get("/")
+async def root():
+    """Кореневий endpoint"""
+    return {
+        "message": "Lawyer CRM API",
+        "version": "2.0.0",
+        "docs": "/docs" if settings.DEBUG else None
+    }
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=settings.DEBUG,
+        log_level=settings.LOG_LEVEL.lower(),
+        workers=4 if not settings.DEBUG else 1
+    )
+	

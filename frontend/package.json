@@ -1,0 +1,98 @@
+{
+  "name": "lawyer-crm-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@ant-design/icons": "^5.3.0",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@fullcalendar/core": "^6.1.9",
+    "@fullcalendar/daygrid": "^6.1.9",
+    "@fullcalendar/list": "^6.1.19",
+    "@fullcalendar/react": "^6.1.9",
+    "@fullcalendar/timegrid": "^6.1.9",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "antd": "^5.27.4",
+    "axios": "^1.7.0",
+    "date-fns": "^3.3.1",
+    "dayjs": "^1.11.18",
+    "i18next": "^23.0.0",
+    "i18next-browser-languagedetector": "^7.0.0",
+    "i18next-http-backend": "^2.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-error-boundary": "^6.0.0",
+    "react-i18next": "^13.0.0",
+    "react-router-dom": "^6.0.0",
+    "recharts": "^3.2.1",
+    "web-vitals": "^2.1.4"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "@vitejs/plugin-react": "^4.0.0",
+    "eslint": "^8.0.0",
+    "eslint-plugin-react": "^7.0.0",
+    "eslint-plugin-react-hooks": "^4.0.0",
+    "typescript": "^4.9.5",
+    "vite": "^4.4.0"
+  },
+  "scripts": {
+    "start": "vite",
+    "build": "vite build",
+    "serve": "vite preview",
+    "lint": "eslint src --ext .ts,.tsx",
+    "lint:fix": "eslint src --ext .ts,.tsx --fix",
+    "type-check": "tsc --noEmit"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ],
+    "rules": {
+      "react-hooks/exhaustive-deps": "warn",
+      "@typescript-eslint/no-unused-vars": "warn",
+      "no-console": "warn"
+    }
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all",
+      "not ie > 0",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "keywords": [
+    "lawyer",
+    "crm",
+    "legal",
+    "case-management",
+    "react",
+    "typescript",
+    "ant-design"
+  ],
+  "author": "Lawyer CRM Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/lawyer-crm.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/lawyer-crm/issues"
+  },
+  "homepage": "https://your-lawyer-crm.com"
+}

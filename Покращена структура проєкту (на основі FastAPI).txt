@@ -1,0 +1,218 @@
+﻿# Покращена структура проекту SaaS для юристів
+
+
+SaaS-for-Lawyer/
+├── .env
+├── .env.example                           # Приклад змінних оточення
+├── .gitignore
+├── docker-compose.yml                     # Docker Compose (base)
+├── docker-compose.dev.yml                 # Docker Compose для development
+├── docker-compose.prod.yml                # Docker Compose для production
+├── README.md
+├── LICENSE
+├── docs/                                  # Технічна документація
+│   ├── API.md
+│   ├── DEPLOYMENT.md
+│   ├── ARCHITECTURE.md
+│   └── CONTRIBUTING.md
+├── scripts/                               # Скрипти для розгортання
+│   ├── setup.sh
+│   ├── backup.sh
+│   └── deploy.sh
+├── monitoring/                            # Моніторинг
+│   ├── prometheus.yml
+│   └── grafana/
+├── logging/                               # Логування
+│   ├── logstash.conf
+│   └── filebeat.yml
+├── nginx/                                 # Nginx конфігурації
+│   ├── nginx.conf
+│   └── conf.d/
+│       ├── backend.conf
+│       └── frontend.conf
+├── backend/                               # FastAPI backend
+│   ├── src/
+│   │   ├── main.py                        # Точка входу FastAPI
+│   │   ├── __init__.py
+│   │   ├── api/
+│   │   │   ├── __init__.py
+│   │   │   └── v1/
+│   │   │       ├── __init__.py
+│   │   │       ├── router.py              # Імпорти всіх модулів
+│   │   │       ├── ai_assistant/
+│   │   │       ├── auth/
+│   │   │       ├── calendar/
+│   │   │       ├── case_history/
+│   │   │       ├── cases/
+│   │   │       ├── clients/
+│   │   │       ├── court_integration/
+│   │   │       ├── dashboard/
+│   │   │       ├── documents/
+│   │   │       ├── hearings/
+│   │   │       ├── integrations/
+│   │   │       ├── invoices/
+│   │   │       ├── knowledge/
+│   │   │       ├── notifications/
+│   │   │       ├── payments/
+│   │   │       ├── reports/
+│   │   │       ├── tasks/
+│   │   │       ├── templates/
+│   │   │       ├── time_tracking/
+│   │   │       ├── users/
+│   │   │       └── workflows/
+│   │   ├── core/
+│   │   │   ├── __init__.py
+│   │   │   ├── config.py
+│   │   │   ├── database.py
+│   │   │   ├── security.py
+│   │   │   ├── exceptions.py
+│   │   │   ├── logging.py
+│   │   │   └── middleware.py
+│   │   ├── models/
+│   │   │   ├── __init__.py
+│   │   │   ├── user.py
+│   │   │   ├── client.py
+│   │   │   ├── case.py
+│   │   │   ├── document.py
+│   │   │   ├── calendar.py
+│   │   │   └── base.py
+│   │   ├── schemas/
+│   │   │   ├── __init__.py
+│   │   │   ├── user.py
+│   │   │   ├── client.py
+│   │   │   ├── case.py
+│   │   │   ├── document.py
+│   │   │   └── common.py
+│   │   ├── services/
+│   │   │   ├── __init__.py
+│   │   │   ├── auth_service.py
+│   │   │   ├── case_service.py
+│   │   │   ├── client_service.py
+│   │   │   ├── document_service.py
+│   │   │   └── email_service.py
+│   │   ├── repositories/
+│   │   │   ├── __init__.py
+│   │   │   ├── base.py
+│   │   │   ├── user_repository.py
+│   │   │   ├── case_repository.py
+│   │   │   └── client_repository.py
+│   │   ├── utils/
+│   │   │   ├── __init__.py
+│   │   │   ├── validators.py
+│   │   │   ├── helpers.py
+│   │   │   └── constants.py
+│   │   └── celery/
+│   │       ├── __init__.py
+│   │       ├── tasks.py
+│   │       └── config.py
+│   ├── migrations/
+│   │   ├── alembic.ini
+│   │   ├── env.py
+│   │   ├── script.py.mako
+│   │   └── versions/
+│   ├── tests/
+│   │   ├── __init__.py
+│   │   ├── conftest.py
+│   │   ├── test_auth.py
+│   │   ├── test_cases.py
+│   │   ├── test_clients.py
+│   │   ├── test_documents.py
+│   │   └── fixtures/
+│   ├── requirements/
+│   │   ├── base.txt
+│   │   ├── dev.txt
+│   │   └── prod.txt
+│   ├── Dockerfile
+│   ├── Dockerfile.dev
+│   ├── pyproject.toml
+│   ├── setup.cfg
+│   ├── .env.example
+│   ├── init-db/
+│   │   └── init.sql
+│   ├── postgresql.conf
+│   ├── redis.conf
+│   └── celery.conf
+├── frontend/                              # React + TypeScript
+│   ├── public/
+│   │   ├── index.html
+│   │   ├── favicon.ico
+│   │   └── manifest.json
+│   ├── src/
+│   │   ├── index.tsx
+│   │   ├── App.tsx
+│   │   ├── __tests__/
+│   │   ├── types/
+│   │   │   ├── index.ts
+│   │   │   ├── user.ts
+│   │   │   ├── case.ts
+│   │   │   └── api.ts
+│   │   ├── services/
+│   │   │   ├── index.ts
+│   │   │   ├── api.ts
+│   │   │   ├── auth.ts
+│   │   │   ├── case.ts
+│   │   │   ├── client.ts
+│   │   │   └── document.ts
+│   │   ├── hooks/
+│   │   │   ├── index.ts
+│   │   │   ├── useAuth.ts
+│   │   │   ├── useCases.ts
+│   │   │   ├── useClients.ts
+│   │   │   └── useLocalStorage.ts
+│   │   ├── utils/
+│   │   │   ├── index.ts
+│   │   │   ├── helpers.ts
+│   │   │   ├── validators.ts
+│   │   │   └── constants.ts
+│   │   ├── components/
+│   │   │   ├── common/
+│   │   │   ├── layout/
+│   │   │   ├── auth/
+│   │   │   ├── cases/
+│   │   │   ├── clients/
+│   │   │   ├── documents/
+│   │   │   └── dashboard/
+│   │   ├── pages/
+│   │   │   ├── Login.tsx
+│   │   │   ├── Register.tsx
+│   │   │   ├── Dashboard.tsx
+│   │   │   ├── Cases/
+│   │   │   ├── Clients/
+│   │   │   ├── Documents.tsx
+│   │   │   ├── Calendar.tsx
+│   │   │   ├── Profile.tsx
+│   │   │   └── NotFound.tsx
+│   │   └── styles/
+│   ├── tests/
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── vite.config.ts
+│   ├── tailwind.config.js
+│   ├── postcss.config.js
+│   ├── .eslintrc.js
+│   ├── .prettierrc
+│   ├── Dockerfile
+│   ├── Dockerfile.dev
+│   ├── nginx.conf
+│   └── .env.example
+├── mobile/                                # React Native
+│   ├── src/
+│   ├── android/
+│   ├── ios/
+│   ├── package.json
+│   └── tsconfig.json
+├── infrastructure/                        # IaC
+│   ├── terraform/
+│   ├── ansible/
+│   └── kubernetes/
+│       ├── deployments/
+│       ├── services/
+│       ├── ingress/
+│       └── configmaps/
+└── .github/                               # CI/CD
+    ├── workflows/
+    │   ├── ci.yml
+    │   ├── cd.yml
+    │   └── security.yml
+    ├── ISSUE_TEMPLATE/
+    └── PULL_REQUEST_TEMPLATE.md

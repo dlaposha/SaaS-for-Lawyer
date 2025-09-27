@@ -1,0 +1,44 @@
+FROM python:3.11-slim
+
+# Встановлення системних залежностей
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    libpq-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Створення користувача
+RUN useradd --create-home --shell /bin/bash app
+
+# Робоча директорія
+WORKDIR /app
+
+# Копіювання файлів залежностей
+COPY pyproject.toml poetry.lock* ./
+
+# Встановлення Poetry
+RUN pip install --no-cache-dir poetry
+
+# Встановлення залежностей
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-dev --no-interaction --no-ansi
+
+# Копіювання джерельного коду
+COPY . .
+
+# Зміна власника
+RUN chown -R app:app /app
+
+# Перехід до непривілейованого користувача
+USER app
+
+# Відкриття порту
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Команда запуску для development
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

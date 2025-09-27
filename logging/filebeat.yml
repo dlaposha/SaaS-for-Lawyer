@@ -1,0 +1,34 @@
+filebeat.inputs:
+- type: log
+  enabled: true
+  paths:
+    - /var/log/backend/*.log
+  fields:
+    service: lawyer-crm-backend
+    environment: production
+
+- type: log
+  enabled: true
+  paths:
+    - /var/log/nginx/*.log
+  fields:
+    service: nginx
+    environment: production
+
+processors:
+- add_docker_metadata:
+    host: "unix:///var/run/docker.sock"
+
+- decode_json_fields:
+    fields: ["message"]
+    target: "json"
+    overwrite_keys: true
+
+output.logstash:
+  hosts: ["logstash:5044"]
+
+setup.template.settings:
+  index.number_of_shards: 1
+  index.codec: best_compression
+
+setup.ilm.enabled: false

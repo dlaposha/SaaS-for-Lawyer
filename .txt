@@ -1,0 +1,74 @@
+cd /e/Projects/SaaS-for-Lawyer
+
+
+Зупинка та видалення існуючих контейнерів та нейтвоків:
+docker-compose -f docker-compose.dev.yml down -v
+
+Побудова образів:
+docker-compose -f docker-compose.dev.yml build --no-cache
+
+Запуск сервісів:
+docker-compose -f docker-compose.dev.yml up -d
+
+Перевірка стану сервісів:
+docker-compose -f docker-compose.dev.yml ps
+
+Запуск міграцій бази даних:
+docker-compose -f docker-compose.dev.yml exec backend alembic upgrade head
+
+Запуск фонових задач:
+docker-compose -f docker-compose.dev.yml exec celery-worker celery -A src.celery worker --loglevel=info --concurrency=2
+
+Перевірка логів:
+docker-compose -f docker-compose.dev.yml logs -f
+
+
+
+Використання docker-compose.yml, docker-compose.dev.yml, docker-compose.prod.yml
+docker-compose.yml:
+Ціль: Цей файл зазвичай містить базову конфігурацію для сервісів, яка може бути спільною як для розробки, так і для продакшну.
+Використання: Як правило, цей файл не містить специфічних налаштувань для розробки або продакшну. Він може містити загальні налаштування, які не змінюються між середовищами.
+docker-compose.dev.yml:
+Ціль: Цей файл містить конфігурацію для розробчого середовища.
+Використання: Використовується для локальної розробки та тестування. Включає налаштування для автоматичного перезавантаження додатку, відкриття додаткових портів для логування та інших цілей розробки.
+docker-compose.prod.yml:
+Ціль: Цей файл містить конфігурацію для продакшн-середовища.
+Використання: Використовується для розгортання додатку у продакшн-середовищі. Включає налаштування для оптимізації продуктивності, безпеки та моніторингу.
+Який Docker Compose запускати при розробці
+При розробці рекомендується використовувати docker-compose.dev.yml, оскільки він містить налаштування, які спрощують процес розробки, наприклад, автоматичне перезавантаження додатку при зміні коду.
+
+Запуск Docker Compose при розробці
+
+Зупинка та видалення існуючих контейнерів та нейтвоків:
+docker-compose -f docker-compose.dev.yml down -v
+
+Побудова образів:
+docker-compose -f docker-compose.dev.yml build --no-cache
+
+Запуск сервісів:
+docker-compose -f docker-compose.dev.yml up -d
+
+Перевірка стану сервісів:
+docker-compose -f docker-compose.dev.yml ps
+
+Запуск міграцій бази даних:
+docker-compose -f docker-compose.dev.yml exec backend alembic upgrade head
+
+Запуск фонових задач:
+docker-compose -f docker-compose.dev.yml exec celery-worker celery -A src.celery worker --loglevel=info --concurrency=2
+
+Скопіювання проекту до Git
+Ініціалізація Git репозиторію:
+git init
+
+Додавання файлів до Git:
+git add .
+
+Зроблення першого коміту:
+git commit -m "Initial commit"
+
+Додавання віддаленого репозиторію (якщо потрібно):
+git remote add origin https://github.com/dlaposha/SaaS-for-Lawyer.git
+
+Надсилання коміту до віддаленого репозиторію:
+git push -u origin main
