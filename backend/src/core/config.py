@@ -1,7 +1,7 @@
-from pydantic import BaseSettings, AnyHttpUrl, validator, PostgresDsn, RedisDsn
+from pydantic_settings import BaseSettings
+from pydantic import AnyHttpUrl, validator, PostgresDsn, RedisDsn
 from typing import List, Optional, Union
 import secrets
-import enum
 
 class Settings(BaseSettings):
     # Безпека - автоматична генерація секретного ключа
@@ -13,10 +13,11 @@ class Settings(BaseSettings):
     # База даних
     DATABASE_URL: PostgresDsn
     DATABASE_POOL_SIZE: int = 20
-    DATABASE_MAX_OVERFLOW: int = 10
+    DATABASE_MAX_OVERFLOW: int = 30
 
     # Redis для кешування та сесій
     REDIS_URL: RedisDsn = "redis://localhost:6379/0"
+    REDIS_PASSWORD: str = "your_redis_password"
     REDIS_CACHE_TTL: int = 300
 
     # MinIO для зберігання файлів

@@ -8,53 +8,63 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
+from fastapi_cache.decorator import cache
 from redis import asyncio as aioredis
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import QueuePool
 
 from .core.config import settings
-from .core.database import engine, Base, get_db
+from .core.database import db_manager, Base
 from .core.security import security_service
 from .api.v1.router import api_router
 
 # Налаштування логування
 logging.basicConfig(
-    level=getattr(logging, settings.LOG_LEVEL),
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=getattr(logging, settings.LOG_LEVEL.upper()),
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler("app.log"),
+        logging.StreamHandler()
+    ]
 )
+
 logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Контекстний менеджер життєвого циклу додатку"""
-    # Створення таблиць при запуску
-    logger.info("Creating database tables...")
-    Base.metadata.create_all(bind=engine)
+    # Startup
+    logger.info("Starting application...")
     
-    # Ініціалізація Prometheus
-    if settings.METRICS_ENABLED:
-        prometheus_client.start_http_server(8001)
+    # Ініціалізація бази даних
+    db_manager.init_db(settings.DATABASE_URL)
     
-    logger.info("Application startup complete")
+    # Підключення Redis для кешування
+    redis = await aioredis.from_url(
+        settings.REDIS_URL,
+        encoding="utf8",
+        decode_responses=True
+    )
+    FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
+    
+    # Створення таблиць (для dev, у prod використовуйте міграції)
+    if settings.ENVIRONMENT == "development":
+        async with db_manager.async_engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+    
     yield
-    logger.info("Application shutdown")
+    
+    # Shutdown
+    logger.info("Shutting down application...")
+    await FastAPICache.close()
 
 app = FastAPI(
     title="Lawyer CRM API",
-    description="SaaS для управління юридичними справами",
-    version="2.0.0",
-    docs_url="/docs" if settings.DEBUG else None,
-    redoc_url="/redoc" if settings.DEBUG else None,
+    version="1.0.0",
     lifespan=lifespan
 )
 
-# Middleware
-app.add_middleware(
-    TrustedHostMiddleware,
-    allowed_hosts=settings.ALLOWED_HOSTS
-)
-
+# Налаштування CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
@@ -63,71 +73,46 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.middleware("http")
-async def add_process_time_header(request: Request, call_next):
-    """Middleware для вимірювання часу виконання запитів"""
-    start_time = time.time()
-    response = await call_next(request)
-    process_time = time.time() - start_time
-    response.headers["X-Process-Time"] = str(process_time)
-    return response
+# Налаштування Trusted Hosts
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=settings.ALLOWED_HOSTS,
+)
 
-# Обробка винятків
-@app.exception_handler(CustomException)
-async def custom_exception_handler(request: Request, exc: CustomException):
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={
-            "error": exc.error,
-            "message": exc.message,
-            "detail": exc.detail
-        }
-    )
+# Налаштування GZip Middleware
+app.add_middleware(
+    GZipMiddleware,
+    minimum_size=1000
+)
 
-@app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    return JSONResponse(
-        status_code=422,
-        content={
-            "error": "Validation Error",
-            "message": "Invalid request data",
-            "detail": exc.errors()
-        }
-    )
+# Роути
+app.include_router(api_router, prefix=settings.API_PREFIX + settings.API_V1_STR)
 
-# Instrumentation для моніторингу
-if settings.METRICS_ENABLED:
-    Instrumentator().instrument(app).expose(app)
+# Статичні файли
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Маршрути
-app.include_router(api_router, prefix=settings.API_V1_STR)
-
-# Health check endpoint
-@app.get("/health")
+# Health check
+@app.get("/health", tags=["Health"])
 async def health_check():
-    """Health check endpoint"""
     return {
         "status": "healthy",
-        "version": "2.0.0",
-        "environment": settings.ENVIRONMENT
+        "environment": settings.ENVIRONMENT,
+        "version": "1.0.0"
     }
 
-@app.get("/")
-async def root():
-    """Кореневий endpoint"""
-    return {
-        "message": "Lawyer CRM API",
-        "version": "2.0.0",
-        "docs": "/docs" if settings.DEBUG else None
-    }
+# Глобальна обробка помилок
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request, exc):
+    logger.error(f"HTTP error: {exc.detail}")
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail}
+    )
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=settings.DEBUG,
-        log_level=settings.LOG_LEVEL.lower(),
-        workers=4 if not settings.DEBUG else 1
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request, exc):
+    logger.error(f"Unhandled error: {str(exc)}")
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={"detail": "Internal Server Error"}
     )

@@ -1,6 +1,6 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import path from 'path'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
@@ -10,67 +10,53 @@ export default defineConfig({
       '@components': path.resolve(__dirname, './src/components'),
       '@pages': path.resolve(__dirname, './src/pages'),
       '@services': path.resolve(__dirname, './src/services'),
-      '@hooks': path.resolve(__dirname, './src/hooks'),
       '@utils': path.resolve(__dirname, './src/utils'),
       '@types': path.resolve(__dirname, './src/types'),
       '@assets': path.resolve(__dirname, './src/assets'),
-    }
+      '@hooks': path.resolve(__dirname, './src/hooks'),
+      '@contexts': path.resolve(__dirname, './src/contexts'),
+      '@layouts': path.resolve(__dirname, './src/layouts'),
+      '@shared': path.resolve(__dirname, './src/shared'),
+      '@features': path.resolve(__dirname, './src/features'),
+      '@config': path.resolve(__dirname, './src/config'),
+      '@lib': path.resolve(__dirname, './src/lib'),
+      '@ui': path.resolve(__dirname, './src/ui'),
+      '@store': path.resolve(__dirname, './src/store'),
+      '@actions': path.resolve(__dirname, './src/actions'),
+      '@reducers': path.resolve(__dirname, './src/reducers'),
+      '@selectors': path.resolve(__dirname, './src/selectors'),
+      '@constants': path.resolve(__dirname, './src/constants'),
+      '@themes': path.resolve(__dirname, './src/themes'),
+      '@styles': path.resolve(__dirname, './src/styles'),
+      '@tests': path.resolve(__dirname, './src/tests'),
+      '@mocks': path.resolve(__dirname, './src/mocks'),
+      '@helpers': path.resolve(__dirname, './src/helpers'),
+    },
   },
   server: {
+    host: true,
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://localhost:8000',
+        target: 'http://backend:8000',
         changeOrigin: true,
         secure: false,
-      }
-    }
+      },
+    },
   },
   build: {
     outDir: 'dist',
-    sourcemap: false,
+    assetsDir: 'assets',
+    sourcemap: true,
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
     rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          ui: ['antd', '@ant-design/icons'],
-          utils: ['axios', 'dayjs', 'lodash']
-        }
-      }
-    }
-  }
-})
-
-// frontend/tsconfig.json
-{
-  "compilerOptions": {
-    "target": "ES2020",
-    "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "skipLibCheck": true,
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "react-jsx",
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"],
-      "@components/*": ["src/components/*"],
-      "@pages/*": ["src/pages/*"],
-      "@services/*": ["src/services/*"],
-      "@hooks/*": ["src/hooks/*"],
-      "@utils/*": ["src/utils/*"],
-      "@types/*": ["src/types/*"],
-      "@assets/*": ["src/assets/*"]
-    }
+      input: path.resolve(__dirname, 'public/index.html'),
+    },
   },
-  "include": ["src"],
-  "references": [{ "path": "./tsconfig.node.json" }]
-}
+});

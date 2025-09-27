@@ -59,7 +59,7 @@ services:
     image: minio/minio:latest
     container_name: lawyer_crm_minio_dev
     restart: unless-stopped
-    command: server /data --console-address ":9001"
+    command: server /data --console-address ":9091"
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
@@ -67,7 +67,7 @@ services:
       - minio_data_dev:/data
     ports:
       - "9000:9000"
-      - "9001:9001"
+      - "9091:9091"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
@@ -111,7 +111,6 @@ services:
       SMTP_USER: ${SMTP_USER}
       SMTP_PASSWORD: ${SMTP_PASSWORD}
       EMAIL_FROM: ${EMAIL_FROM}
-      EMAIL_TEMPLATES_DIR: ${EMAIL_TEMPLATES_DIR}
     volumes:
       - ./backend:/app
       - ./backend/logs:/app/logs
@@ -160,17 +159,26 @@ services:
       dockerfile: Dockerfile.dev
     container_name: lawyer_crm_celery_dev
     restart: unless-stopped
-    command: celery -A src.celery worker --loglevel=info --concurrency=2
+    command: ["celery", "-A", "src.celery.celery_app", "worker", "--loglevel=info", "--concurrency=2"]
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
-      CELERY_BROKER_URL: ${CELERY_BROKER_URL}
-      CELERY_RESULT_BACKEND: ${CELERY_RESULT_BACKEND}
+      CELERY_BROKER_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      CELERY_RESULT_BACKEND: redis://:${REDIS_PASSWORD}@redis:6379/0
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      MINIO_BUCKET: ${MINIO_BUCKET:-lawyer-crm}
+      MINIO_SECURE: ${MINIO_SECURE:-false}
     volumes:
       - ./backend:/app
     depends_on:
-      - db
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
     networks:
       - lawyer-crm-network
 

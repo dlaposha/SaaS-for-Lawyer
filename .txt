@@ -1,6 +1,10 @@
 cd /e/Projects/SaaS-for-Lawyer
 
 
+docker builder prune --all
+docker system prune -af
+docker-compose -f docker-compose.dev.yml build --no-cache
+
 Зупинка та видалення існуючих контейнерів та нейтвоків:
 docker-compose -f docker-compose.dev.yml down -v
 
@@ -72,3 +76,4 @@ git remote add origin https://github.com/dlaposha/SaaS-for-Lawyer.git
 
 Надсилання коміту до віддаленого репозиторію:
 git push -u origin main
+

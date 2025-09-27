@@ -6,11 +6,8 @@ from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 
-# Створення екземпляру Celery
-celery_app = Celery("lawyer_crm")
-
-# Імпорт конфігурації
-celery_app.config_from_object("src.celery.config")
+# Імпорт завдань з celery_app
+from .celery_app import celery_app
 
 @celery_app.task(bind=True, max_retries=3)
 def send_email(self, to_email: str, subject: str, template_name: str, context: dict):
@@ -68,6 +65,3 @@ def process_document_analysis(document_id: int):
     except Exception as exc:
         logger.error(f"Document analysis failed: {exc}")
         return "Analysis failed"
-
-# Реєстрація завдань
-celery_app.autodiscover_tasks(["src.celery.tasks"])

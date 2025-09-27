@@ -1,0 +1,24 @@
+FROM python:3.11-slim
+
+# Встановлення системних залежностей
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    libpq-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Копіювання файлів залежностей
+WORKDIR /app
+COPY requirements.txt .
+
+# Встановлення залежностей
+RUN pip install --default-timeout=1000 --no-cache-dir -r requirements.txt
+
+# Копіювання коду
+COPY . .
+
+# Команда для запуску Celery worker'а
+# ВАЖЛИВО: Переконайтесь, що шлях 'src.celery.celery_app:celery_app' відповідає структурі вашого проекту.
+# Якщо ваш файл називається просто 'celery_app.py' і знаходиться в 'src/', шлях буде 'src.celery_app:celery_app'.
+CMD ["celery", "-A", "src.celery.celery_app:celery_app", "worker", "--loglevel=info", "--concurrency=2"]
