@@ -46,7 +46,7 @@ aiosmtplib = "^3.0"
 
 # ------- observability -------
 structlog = "^24.2"
-prometheus-client = "^0.20"
+prometheus-client = "^0.23"
 
 # ------- extras (optional) -------
 sentry_sdk = { version = ">=2.0", optional = true }
