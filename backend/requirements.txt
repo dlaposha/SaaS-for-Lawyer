@@ -24,7 +24,7 @@ minio==7.2.0
 python-dotenv==1.0.0
 
 # Validation
-email-validator==2.1.0
+email-validator==2.3.0
 
 # Testing
 pytest==7.4.3
