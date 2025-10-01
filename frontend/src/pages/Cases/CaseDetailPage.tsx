@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Button, Typography, Descriptions, Tag, Timeline, message, Spin, Row, Col } from 'antd';
 import { ArrowLeftOutlined, EditOutlined, FileTextOutlined } from '@ant-design/icons';
-import api from '../services/api';
+import { demoApi } from "../../services/api";
 
 const { Title, Text } = Typography;
 

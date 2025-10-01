@@ -1,3 +1,10 @@
+import enum
+from sqlalchemy import Column, String, Text, Boolean, DateTime, ForeignKey, Enum, Integer
+from sqlalchemy.dialects.postgresql import UUID
+import uuid
+from datetime import datetime
+from src.core.database import Base
+
 class ArticleCategory(enum.Enum):
     LAW = "law"
     PROCEDURE = "procedure"

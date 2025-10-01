@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select, func
+from sqlalchemy import select, func  # Виправлений імпорт - func з sqlalchemy, не з sqlalchemy.future
 from sqlalchemy.exc import SQLAlchemyError
 from uuid import UUID
 from typing import Optional, List, Dict, Any
@@ -141,6 +141,7 @@ class InvoiceService:
                 if payment_reference:
                     db_invoice.payment_reference = payment_reference
             
+            self.db.add(db_invoice)  # Додано self.db.add()
             await self.db.commit()
             await self.db.refresh(db_invoice)
             return db_invoice

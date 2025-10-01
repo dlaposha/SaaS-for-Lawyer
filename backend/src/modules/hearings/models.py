@@ -1,12 +1,14 @@
 from sqlalchemy import Column, String, DateTime, ForeignKey, Text, Boolean, Enum
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 import uuid
 from datetime import datetime
-from sqlalchemy.orm import relationship
 from src.core.database import Base
 import enum
 
-class HearingType(enum.Enum):
+# Визначення Enum типів
+class HearingType(str, enum.Enum):
     PRELIMINARY = "preliminary"
     MOTION = "motion"
     TRIAL = "trial"
@@ -14,7 +16,7 @@ class HearingType(enum.Enum):
     APPEAL = "appeal"
     OTHER = "other"
 
-class HearingStatus(enum.Enum):
+class HearingStatus(str, enum.Enum):
     SCHEDULED = "scheduled"
     CONFIRMED = "confirmed"
     IN_PROGRESS = "in_progress"
@@ -24,10 +26,10 @@ class HearingStatus(enum.Enum):
 
 class Hearing(Base):
     __tablename__ = "hearings"
-
+    
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     
-    # Відносини
+    # Зовнішні ключі
     case_id = Column(UUID(as_uuid=True), ForeignKey("cases.id"), nullable=False)
     created_by_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     
@@ -46,7 +48,7 @@ class Hearing(Base):
     case_number = Column(String(100))
     
     # Учасники
-    participants = Column(Text)  JSON список учасників
+    participants = Column(Text)  # JSON список учасників
     required_attendees = Column(Text)  # JSON список обов'язкових учасників
     
     # Підготовка
@@ -66,6 +68,6 @@ class Hearing(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Relationships
+    # Зв'язки
     case = relationship("Case", back_populates="hearings")
-    created_by = relationship("User")
+    created_by = relationship("User", back_populates="created_hearings")

@@ -1,6 +1,5 @@
 from celery import Celery
 from src.core.config import settings
-from src.core.database import AsyncSessionLocal
 import logging
 from datetime import datetime, timedelta
 

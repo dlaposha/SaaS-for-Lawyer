@@ -14,7 +14,7 @@ import {
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { PlusOutlined } from '@ant-design/icons';
-import api from '../services/api';
+import { demoApi } from "../../services/api";
 
 interface Invoice {
   id: string;

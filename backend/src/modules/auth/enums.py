@@ -4,7 +4,7 @@ class UserRole(str, enum.Enum):
     ADMIN = "admin"
     LAWYER = "lawyer"
     ASSISTANT = "assistant"
-    PARELEGAL = "paralegal"
+    PARALEGAL = "paralegal"
     ACCOUNTANT = "accountant"
     VIEWER = "viewer"
 

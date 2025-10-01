@@ -59,7 +59,7 @@ services:
     image: minio/minio:latest
     container_name: lawyer_crm_minio_dev
     restart: unless-stopped
-    command: server /data --console-address ":9091"
+    command: server /data --console-address ":9001"
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
@@ -67,7 +67,7 @@ services:
       - minio_data_dev:/data
     ports:
       - "9000:9000"
-      - "9091:9091"
+      - "9001:9001"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
@@ -86,7 +86,7 @@ services:
     restart: unless-stopped
     environment:
       # Database
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      DATABASE_URL: ${DATABASE_URL}
       # Redis
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
       REDIS_PASSWORD: ${REDIS_PASSWORD}
@@ -122,9 +122,9 @@ services:
       minio:
         condition: service_healthy
     ports:
-      - "8000:8000"
+      - "8001:8000"  # Змінено порт з 8000 на 8001
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -147,9 +147,6 @@ services:
       - /app/node_modules
     environment:
       - VITE_API_URL=http://backend:8000/api/v1
-      - GENERATE_SOURCEMAP=false
-      - DISABLE_ESLINT_PLUGIN=true
-      - INLINE_RUNTIME_CHUNK=false
     networks:
       - lawyer-crm-network
 
@@ -159,9 +156,9 @@ services:
       dockerfile: Dockerfile.dev
     container_name: lawyer_crm_celery_dev
     restart: unless-stopped
-    command: ["celery", "-A", "src.celery.celery_app", "worker", "--loglevel=info", "--concurrency=2"]
+    command: ["celery", "-A", "src.celery.celery_app:celery_app", "worker", "--loglevel=info", "--concurrency=2"]
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      DATABASE_URL: ${DATABASE_URL}
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
       CELERY_BROKER_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
       CELERY_RESULT_BACKEND: redis://:${REDIS_PASSWORD}@redis:6379/0
@@ -170,6 +167,17 @@ services:
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
       MINIO_BUCKET: ${MINIO_BUCKET:-lawyer-crm}
       MINIO_SECURE: ${MINIO_SECURE:-false}
+      SECRET_KEY: ${SECRET_KEY}
+      ALGORITHM: ${ALGORITHM:-HS256}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      DEBUG: ${DEBUG:-true}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      EMAIL_FROM: ${EMAIL_FROM}
     volumes:
       - ./backend:/app
     depends_on:
@@ -177,7 +185,40 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      minio:
+    networks:
+      - lawyer-crm-network
+
+  # (опціонально) планувальник періодичних задач
+  celery-beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: lawyer_crm_celery_beat_dev
+    restart: unless-stopped
+    working_dir: /app
+    command: >
+      sh -c "python -m celery -A src.celery.celery_app:celery_app beat
+             --loglevel=info --scheduler redbeat.RedBeatScheduler"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      CELERY_BROKER_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      CELERY_RESULT_BACKEND: redis://:${REDIS_PASSWORD}@redis:6379/0
+      SECRET_KEY: ${SECRET_KEY}
+      ALGORITHM: ${ALGORITHM:-HS256}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      DEBUG: ${DEBUG:-true}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      EMAIL_FROM: ${EMAIL_FROM}
+    volumes:
+      - ./backend:/app
+    depends_on:
+      redis:
         condition: service_healthy
     networks:
       - lawyer-crm-network

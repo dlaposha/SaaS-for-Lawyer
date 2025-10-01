@@ -1,4 +1,4 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings  # Виправлений імпорт
 from pydantic import AnyHttpUrl, validator, PostgresDsn, RedisDsn
 from typing import List, Optional, Union
 import secrets
@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     # База даних
     DATABASE_URL: PostgresDsn
     DATABASE_POOL_SIZE: int = 20
-    DATABASE_MAX_OVERFLOW: int = 30
+    DATABASE_MAX_OVERFLOW: int = 10
 
     # Redis для кешування та сесій
     REDIS_URL: RedisDsn = "redis://localhost:6379/0"
@@ -21,9 +21,9 @@ class Settings(BaseSettings):
     REDIS_CACHE_TTL: int = 300
 
     # MinIO для зберігання файлів
-    MINIO_ENDPOINT: str
-    MINIO_ACCESS_KEY: str
-    MINIO_SECRET_KEY: str
+    MINIO_ENDPOINT: str = "http://minio:9000"  # Додано значення за замовчуванням
+    MINIO_ACCESS_KEY: str = "minioadmin"
+    MINIO_SECRET_KEY: str = "minioadmin"
     MINIO_BUCKET: str = "lawyer-crm"
     MINIO_SECURE: bool = False
 
@@ -74,9 +74,9 @@ class Settings(BaseSettings):
     PROMETHEUS_MULTIPROC_DIR: str = "/tmp/prometheus"
     METRICS_ENABLED: bool = True
 
-    # Celery
-    CELERY_BROKER_URL: str
-    CELERY_RESULT_BACKEND: str
+    # Celery - додано значення за замовчуванням
+    CELERY_BROKER_URL: str = "redis://localhost:6379/0"
+    CELERY_RESULT_BACKEND: str = "redis://localhost:6379/0"
 
     # Додаткові налаштування
     UPLOAD_MAX_FILE_SIZE: int = 104857600  # 100MB

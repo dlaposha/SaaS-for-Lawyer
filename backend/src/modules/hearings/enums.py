@@ -1,16 +1,17 @@
 import enum
 
 class HearingType(str, enum.Enum):
-    COURT = "court"
-    ARBITRATION = "arbitration"
-    MEDIATION = "mediation"
-    NEGOTIATION = "negotiation"
+    PRELIMINARY = "preliminary"
+    MOTION = "motion"
     TRIAL = "trial"
+    SETTLEMENT = "settlement"
     APPEAL = "appeal"
+    OTHER = "other"
 
 class HearingStatus(str, enum.Enum):
     SCHEDULED = "scheduled"
+    CONFIRMED = "confirmed"
     IN_PROGRESS = "in_progress"
     COMPLETED = "completed"
     CANCELLED = "cancelled"
-    POSTPONED = "postponed"
+    ADJOURNED = "adjourned"

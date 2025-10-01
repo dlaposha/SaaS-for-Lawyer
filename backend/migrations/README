@@ -1,1 +1,15 @@
-Generic single-database configuration.
+# Migrations
+
+This directory contains Alembic migrations for **Lawyer CRM SaaS**.
+
+## Usage
+
+```bash
+# Create new migration
+alembic revision --autogenerate -m "Add user table"
+
+# Apply migrations
+alembic upgrade head
+
+# Downgrade last migration
+alembic downgrade -1

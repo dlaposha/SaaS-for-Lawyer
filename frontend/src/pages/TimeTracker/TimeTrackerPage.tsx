@@ -14,7 +14,7 @@ import {
   PauseCircleOutlined,
   StopOutlined
 } from '@ant-design/icons';
-import api from '../services/api';
+import { demoApi } from "../../services/api";
 
 const { Title } = Typography;
 

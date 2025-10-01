@@ -1,22 +1,22 @@
 from fastapi import APIRouter
 
 # Імпорт роутерів з модулів
-from ..modules.ai_assistant.router import router as ai_assistant_router
-from ..modules.auth.router import router as auth_router
-from ..modules.users.router import router as users_router
-from ..modules.calendar.router import router as calendar_router
-from ..modules.cases.router import router as cases_router
-from ..modules.clients.router import router as clients_router
-from ..modules.documents.router import router as documents_router
-from ..modules.tasks.router import router as tasks_router
-from ..modules.invoices.router import router as invoices_router
-from ..modules.hearings.router import router as hearings_router
-from ..modules.time_tracking.router import router as time_tracking_router
-from ..modules.notifications.router import router as notifications_router
-from ..modules.reports.router import router as reports_router
-from ..modules.knowledge.router import router as knowledge_router
+from ...modules.auth.router import router as auth_router
+from ...modules.users.router import router as users_router
+from ...modules.cases.router import router as cases_router
+from ...modules.clients.router import router as clients_router
+from ...modules.documents.router import router as documents_router
+from ...modules.calendar.router import router as calendar_router
+from ...modules.tasks.router import router as tasks_router
+from ...modules.invoices.router import router as invoices_router
+from ...modules.hearings.router import router as hearings_router
+from ...modules.time_tracking.router import router as time_tracking_router
+from ...modules.notifications.router import router as notifications_router
+from ...modules.reports.router import router as reports_router
+from ...modules.knowledge.router import router as knowledge_router
+from ...modules.ai_assistant.router import router as ai_assistant_router
 
-# Головний роутер API
+# Головний роутер API v1
 api_router = APIRouter()
 
 # Підключення роутерів модулів
@@ -38,4 +38,4 @@ api_router.include_router(ai_assistant_router, prefix="/ai-assistant", tags=["AI
 @api_router.get("/health")
 async def health_check():
     """Health check endpoint"""
-    return {"status": "healthy", "service": "Lawyer CRM API"}
+    return {"status": "healthy", "service": "Lawyer CRM API v1"}

@@ -1,5 +1,9 @@
 cd /e/Projects/SaaS-for-Lawyer
+docker compose down -v
+docker-compose -f docker-compose.dev.yml down -v
 
+docker compose -f docker-compose.dev.yml down
+docker compose -f docker-compose.dev.yml up -d
 
 docker builder prune --all
 docker system prune -af

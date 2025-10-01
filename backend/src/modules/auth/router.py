@@ -1,17 +1,21 @@
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List
+from jose import JWTError, jwt  # ← обов'язково для `refresh_token`
 
-from . import service, schemas
+from . import service, schemas, models
 from src.core.database import get_db
 from src.core.security import (
-    create_access_token, 
+    create_access_token,
     create_refresh_token,
-    get_current_user
+    get_current_user,
+    verify_token  # ← якщо хочеш перевіряти refresh token
 )
+from src.core.config import settings  # ← для `settings.SECRET_KEY`
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
+oauth2_scheme = HTTPBearer()  # ← для `Depends(oauth2_scheme)` у `refresh_token`
 
 @router.post("/register", response_model=schemas.UserResponse)
 async def register(
@@ -28,19 +32,12 @@ async def login(
 ):
     user_service = service.UserService(db)
     user = await user_service.authenticate(form_data.username, form_data.password)
-    
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-        )
-    
-    # Оновлюємо час останнього логіну
+
     await user_service.update_last_login(user)
-    
+
     access_token = create_access_token(data={"sub": user.email})
     refresh_token = create_refresh_token(data={"sub": user.email})
-    
+
     return {
         "access_token": access_token,
         "refresh_token": refresh_token,
@@ -49,69 +46,47 @@ async def login(
 
 @router.get("/me", response_model=schemas.UserResponse)
 async def read_users_me(
-    current_user: Optional[models.User] = Depends(get_current_user)
+    current_user: models.User = Depends(get_current_user)
 ):
-    if not current_user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not authenticated"
-        )
     return current_user
 
 @router.post("/refresh", response_model=schemas.Token)
 async def refresh_token(
-    token_data: schemas.TokenPayload = Depends(oauth2_scheme),
+    credentials: HTTPBearer = Depends(oauth2_scheme),
     db: AsyncSession = Depends(get_db)
 ):
-    if not token_data or token_data.type != "refresh":
+    token = credentials.credentials
+
+    try:
+        payload = verify_token(token, token_type="refresh")
+    except HTTPException:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid refresh token",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
-    try:
-        payload = jwt.decode(
-            token_data.access_token, 
-            settings.SECRET_KEY, 
-            algorithms=[settings.ALGORITHM]
-        )
-        
-        email: str = payload.get("sub")
-        if email is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Could not validate credentials",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-            
-    except JWTError:
+
+    email: str = payload.get("sub")
+    if not email:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
+            detail="Invalid token payload",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
+
     user_service = service.UserService(db)
     user = await user_service.get_by_email(email)
-    
-    if not user:
+
+    if not user or not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found",
+            detail="User not found or inactive",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
-    if not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Inactive user",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    
+
     new_access_token = create_access_token(data={"sub": user.email})
     new_refresh_token = create_refresh_token(data={"sub": user.email})
-    
+
     return {
         "access_token": new_access_token,
         "refresh_token": new_refresh_token,

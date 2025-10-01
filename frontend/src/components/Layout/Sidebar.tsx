@@ -1,28 +1,26 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { Layout, Menu, MenuProps, Typography } from 'antd';
+import { Layout, Menu } from 'antd';
 import { 
   DashboardOutlined,
   FolderOutlined,
   TeamOutlined,
   CalendarOutlined,
   CheckSquareOutlined,
-  FileTextOutlined,
-  BarChartOutlined,
+  ApartmentOutlined,
   ClockCircleOutlined,
-  ApartmentOutlined
+  FileTextOutlined,
+  BarChartOutlined
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
+import type { MenuProps } from 'antd';
 
 const { Sider } = Layout;
-const { Text } = Typography;
 
 interface SidebarProps {
   collapsed: boolean;
 }
 
 const AppSidebar: React.FC<SidebarProps> = ({ collapsed }) => {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -30,47 +28,47 @@ const AppSidebar: React.FC<SidebarProps> = ({ collapsed }) => {
     {
       key: '/dashboard',
       icon: <DashboardOutlined />,
-      label: t('dashboard'),
+      label: 'Дашборд',
     },
     {
       key: '/cases',
       icon: <FolderOutlined />,
-      label: t('cases'),
+      label: 'Справи',
     },
     {
       key: '/clients',
       icon: <TeamOutlined />,
-      label: t('clients'),
+      label: 'Клієнти',
     },
     {
-      key: '/hearings',
+      key: '/calendar',
       icon: <CalendarOutlined />,
-      label: t('hearings'),
+      label: 'Календар',
     },
     {
       key: '/tasks',
       icon: <CheckSquareOutlined />,
-      label: t('tasks'),
+      label: 'Завдання',
     },
     {
       key: '/kanban',
       icon: <ApartmentOutlined />,
-      label: t('kanban'),
+      label: 'Канбан',
     },
     {
       key: '/time-tracker',
       icon: <ClockCircleOutlined />,
-      label: t('timeTracker'),
+      label: 'Таймер',
     },
     {
       key: '/invoices',
       icon: <FileTextOutlined />,
-      label: t('invoices'),
+      label: 'Рахунки',
     },
     {
       key: '/reports',
       icon: <BarChartOutlined />,
-      label: t('reports'),
+      label: 'Звіти',
     },
   ];
 
@@ -83,38 +81,36 @@ const AppSidebar: React.FC<SidebarProps> = ({ collapsed }) => {
       trigger={null} 
       collapsible 
       collapsed={collapsed}
-      className="app-sidebar"
+      style={{ 
+        background: '#fff',
+        boxShadow: '2px 0 8px rgba(0,0,0,0.1)'
+      }}
     >
-      {/* Лого та назва */}
-      <div className="sidebar-header">
-        <div className="sidebar-logo">
-          <FileTextOutlined />
-        </div>
+      {/* Лого */}
+      <div style={{ 
+        height: 64, 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        borderBottom: '1px solid #f0f0f0'
+      }}>
         {!collapsed && (
-          <Text strong className="sidebar-title">
-            Lawyer CRM
-          </Text>
+          <div style={{ fontWeight: 'bold', fontSize: '16px' }}>Lawyer CRM</div>
+        )}
+        {collapsed && (
+          <div style={{ fontWeight: 'bold', fontSize: '14px' }}>LC</div>
         )}
       </div>
 
-      {/* Навігаційне меню */}
+      {/* Меню */}
       <Menu
-        theme="dark"
+        theme="light"
         mode="inline"
         selectedKeys={[location.pathname]}
         items={menuItems}
         onClick={handleMenuClick}
-        className="sidebar-menu"
+        style={{ borderRight: 0, marginTop: 8 }}
       />
-
-      {/* Інформація про версію */}
-      {!collapsed && (
-        <div className="sidebar-footer">
-          <Text type="secondary" className="version-text">
-            v1.0.0
-          </Text>
-        </div>
-      )}
     </Sider>
   );
 };

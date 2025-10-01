@@ -1,38 +1,45 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { Button, Form, Input } from 'antd';
-import { useAuth } from '../../../contexts/AuthContext';
+import { Card, Form, Input, Button, Typography } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+
+const { Title } = Typography;
 
 const LoginPage: React.FC = () => {
-  const { t } = useTranslation();
+  const navigate = useNavigate();
   const { login } = useAuth();
 
   const onFinish = (values: any) => {
-    login(values.email, values.password);
+    // Демо-авторизація
+    const demoToken = 'demo-token';
+    const demoUser = {
+      full_name: 'Дмитро Лапоші',
+      role: 'lawyer',
+      email: values.email,
+      firstName: 'Дмитро',
+      lastName: 'Лапоші'
+    };
+
+    login(demoToken, demoUser);
+    navigate('/dashboard'); // ← це важливо!
   };
 
   return (
-    <div className="login-page">
-      <h2>{t('login')}</h2>
-      <Form onFinish={onFinish}>
-        <Form.Item
-          name="email"
-          rules={[{ required: true, message: t('emailRequired') }]}
-        >
-          <Input placeholder={t('email')} />
-        </Form.Item>
-        <Form.Item
-          name="password"
-          rules={[{ required: true, message: t('passwordRequired') }]}
-        >
-          <Input.Password placeholder={t('password')} />
-        </Form.Item>
-        <Form.Item>
-          <Button type="primary" htmlType="submit" className="login-form-button">
-            {t('login')}
-          </Button>
-        </Form.Item>
-      </Form>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f0f2f5' }}>
+      <Card style={{ width: 400 }}>
+        <Title level={2} style={{ textAlign: 'center' }}>Вхід</Title>
+        <Form onFinish={onFinish} layout="vertical">
+          <Form.Item name="email" label="Email" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="password" label="Пароль" rules={[{ required: true }]}>
+            <Input.Password />
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit" block>Увійти</Button>
+          </Form.Item>
+        </Form>
+      </Card>
     </div>
   );
 };

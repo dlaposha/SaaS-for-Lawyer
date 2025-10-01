@@ -216,3 +216,70 @@ SaaS-for-Lawyer/
     │   └── security.yml
     ├── ISSUE_TEMPLATE/
     └── PULL_REQUEST_TEMPLATE.md
+
+
+
+
+SaaS-for-Lawyer/
+├── .env
+├── docker-compose.dev.yml
+├── docker-compose.prod.yml
+├── README.md
+├── backend/
+│   ├── Dockerfile.dev
+│   ├── pyproject.toml
+│   ├── alembic.ini
+│   ├── src/
+│   │   ├── __init__.py
+│   │   ├── main.py
+│   │   ├── core/
+│   │   │   ├── __init__.py
+│   │   │   ├── config.py
+│   │   │   ├── database.py          ← ти тут
+│   │   │   ├── security.py
+│   │   │   └── exceptions.py
+│   │   ├── api/
+│   │   │   ├── __init__.py
+│   │   │   ├── router.py
+│   │   │   └── v1/
+│   │   │       ├── __init__.py
+│   │   │       ├── router.py
+│   │   │       └── modules/
+│   │   │           ├── auth/
+│   │   │           │   ├── __init__.py
+│   │   │           │   ├── models.py
+│   │   │           │   ├── schemas.py
+│   │   │           │   ├── service.py
+│   │   │           │   └── router.py
+│   │   │           ├── users/
+│   │   │           │   ├── __init__.py
+│   │   │           │   ├── service.py
+│   │   │           │   ├── router.py
+│   │   │           │   └── schemas.py
+│   │   │           └── ...інші модулі
+│   │   ├── celery/
+│   │   │   ├── __init__.py
+│   │   │   ├── celery_app.py
+│   │   │   └── tasks.py
+│   │   └── workers/
+│   │       └── ...
+│   └── migrations/
+│       └── ...
+├── frontend/
+│   ├── Dockerfile.dev
+│   ├── package.json
+│   ├── vite.config.ts
+│   ├── src/
+│   │   ├── App.tsx
+│   │   ├── main.tsx
+│   │   ├── pages/
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   └── ...
+│   └── public/
+├── nginx/
+│   └── nginx.conf
+├── monitoring/
+│   └── ...
+└── docs/
+    └── ...

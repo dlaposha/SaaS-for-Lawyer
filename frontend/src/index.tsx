@@ -29,7 +29,6 @@ root.render(
       onReset={() => window.location.reload()}
     >
       <ConfigProvider
-        // Базова конфігурація Antd для уникнення FOUC
         theme={{
           token: {
             colorPrimary: '#1890ff',
@@ -44,30 +43,7 @@ root.render(
   </React.StrictMode>
 );
 
-// Hot Module Replacement для development
-if (process.env.NODE_ENV === 'development' && module.hot) {
-  module.hot.accept('./App', () => {
-    const NextApp = require('./App').default;
-    root.render(
-      <React.StrictMode>
-        <ErrorBoundary
-          FallbackComponent={ErrorFallback}
-          onError={logError}
-          onReset={() => window.location.reload()}
-        >
-          <ConfigProvider
-            theme={{
-              token: {
-                colorPrimary: '#1890ff',
-              },
-            }}
-          >
-            <AuthProvider>
-              <NextApp />
-            </AuthProvider>
-          </ConfigProvider>
-        </ErrorBoundary>
-      </React.StrictMode>
-    );
-  });
+// Видаліть блок HMR або замініть на умову для Vite
+if (import.meta.hot) {
+  import.meta.hot.accept();
 }

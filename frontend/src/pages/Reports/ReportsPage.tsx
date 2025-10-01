@@ -16,7 +16,7 @@ import {
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { BarChart, Bar } from 'recharts'; // ✅ Додано BarChart, Bar
-import api from '../services/api';
+import { demoApi } from "../../services/api";
 
 const { Title } = Typography;
 

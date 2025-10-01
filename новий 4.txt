@@ -1,0 +1,490 @@
+// src/router/routes.tsx
+import { ROLES } from '../utils/constants';
+
+export interface RouteConfig {
+  path: string;
+  component: React.ComponentType;
+  roles?: string[];
+  redirect?: string;
+}
+
+export const publicRoutes: RouteConfig[] = [
+  { 
+    path: '/login', 
+    component: () => import('../pages/Auth/LoginPage').then(m => m.default) 
+  },
+  { 
+    path: '/register', 
+    component: () => import('../pages/Auth/RegisterPage').then(m => m.default) 
+  },
+];
+
+export const privateRoutes: RouteConfig[] = [
+  { path: '/', redirect: '/dashboard' },
+  { 
+    path: '/dashboard', 
+    component: () => import('../pages/Dashboard/DashboardPage').then(m => m.default) 
+  },
+  { 
+    path: '/cases', 
+    component: () => import('../pages/Cases/CasesPage').then(m => m.default) 
+  },
+  { 
+    path: '/clients', 
+    component: () => import('../pages/Clients/ClientsPage').then(m => m.default) 
+  },
+  { 
+    path: '/hearings', 
+    component: () => import('../pages/Hearings/HearingsPage').then(m => m.default) 
+  },
+  { 
+    path: '/tasks', 
+    component: () => import('../pages/Tasks/TasksPage').then(m => m.default) 
+  },
+  { 
+    path: '/calendar', 
+    component: () => import('../pages/Calendar/CalendarPage').then(m => m.default) 
+  },
+  { 
+    path: '/invoices', 
+    component: () => import('../pages/Invoices/InvoicesPage').then(m => m.default) 
+  },
+  { 
+    path: '/time-tracker', 
+    component: () => import('../pages/TimeTracker/TimeTrackerPage').then(m => m.default) 
+  },
+  { 
+    path: '/reports', 
+    component: () => import('../pages/Reports/ReportsPage').then(m => m.default),
+    roles: [ROLES.ADMIN] 
+  },
+];
+
+
+// src/router/ppRoutes.tsx
+import { lazy, Suspense } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { PrivateRoute } from '@components/common/PrivateRoute';
+import { MainLayout } from '@components/layout/MainLayout';
+import { FullPageSpinner } from '@components/ui/FullPageSpinner';
+import { publicRoutes, privateRoutes } from './routes';
+
+const SuspenseWrapper = ({ children }: { children: React.ReactNode }) => (
+  <Suspense fallback={<FullPageSpinner />}>{children}</Suspense>
+);
+
+export const AppRoutes = () => (
+  <Routes>
+    {/* Публічні */}
+    {publicRoutes.map(({ path, component: Component }) => (
+      <Route
+        key={path}
+        path={path}
+        element={
+          <SuspenseWrapper>
+            <Component />
+          </SuspenseWrapper>
+        }
+      />
+    ))}
+
+    {/* Приватні */}
+    <Route element={<PrivateRoute />}>
+      <Route element={<MainLayout />}>
+        {privateRoutes.map(({ path, component: Component, redirect, roles }) =>
+          redirect ? (
+            <Route key={path} path={path} element={<Navigate to={redirect} replace />} />
+          ) : (
+            <Route
+              key={path}
+              path={path}
+              element={
+                <PrivateRoute requiredRole={roles}>
+                  <SuspenseWrapper>
+                    <Component />
+                  </SuspenseWrapper>
+                </PrivateRoute>
+              }
+            />
+          )
+        )}
+      </Route>
+    </Route>
+
+    {/* 404 */}
+    <Route path="*" element={<SuspenseWrapper><NotFoundPage /></SuspenseWrapper>} />
+  </Routes>
+);
+
+// src/router/AppRoutes.tsx
+// src/router/AppRoutes.tsx
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import LoginPage from '../pages/Auth/LoginPage';
+import DashboardPage from '../pages/Dashboard/DashboardPage';
+import CasesPage from '../pages/Cases/CasesPage';
+import CaseDetailPage from '../pages/Cases/CaseDetailPage';
+import ClientsPage from '../pages/Clients/ClientsPage';
+import ClientDetailPage from '../pages/Clients/ClientDetailPage';
+import TasksPage from '../pages/Tasks/TasksPage';
+import KanbanPage from '../pages/Tasks/KanbanPage';
+import CalendarPage from '../pages/Calendar/CalendarPage';
+import InvoicesPage from '../pages/Invoices/InvoicesPage';
+import TimeTrackerPage from '../pages/TimeTracker/TimeTrackerPage';
+import ReportsPage from '../pages/Reports/ReportsPage';
+import MainLayout from '../layouts/MainLayout';
+import LoadingSpinner from '../components/Common/LoadingSpinner';
+
+const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated, isLoading } = useAuth();
+  
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+  
+  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
+};
+
+const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { isAuthenticated, isLoading } = useAuth();
+  
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+  
+  return !isAuthenticated ? <>{children}</> : <Navigate to="/dashboard" replace />;
+};
+
+const AppRoutes: React.FC = () => {
+  return (
+    <Routes>
+      {/* Public routes */}
+      <Route path="/login" element={
+        <PublicRoute>
+          <LoginPage />
+        </PublicRoute>
+      } />
+
+      {/* Private routes with layout */}
+      <Route path="/" element={
+        <PrivateRoute>
+          <MainLayout>
+            <DashboardPage />
+          </MainLayout>
+        </PrivateRoute>
+      } />
+
+      <Route path="/dashboard" element={
+        <PrivateRoute>
+          <MainLayout>
+            <DashboardPage />
+          </MainLayout>
+        </PrivateRoute>
+      } />
+
+      <Route path="/cases" element={
+        <PrivateRoute>
+          <MainLayout>
+            <CasesPage />
+          </MainLayout>
+        </PrivateRoute>
+      } />
+
+      <Route path="/cases/:id" element={
+        <PrivateRoute>
+          <MainLayout>
+            <CaseDetailPage />
+          </MainLayout>
+        </PrivateRoute>
+      } />
+
+      <Route path="/clients" element={
+        <PrivateRoute>
+          <MainLayout>
+            <ClientsPage />
+          </MainLayout>
+        </PrivateRoute>
+      } />
+
+      <Route path="/clients/:id" element={
+        <PrivateRoute>
+          <MainLayout>
+            <ClientDetailPage />
+          </MainLayout>
+        </PrivateRoute>
+      } />
+
+      <Route path="/tasks" element={
+        <PrivateRoute>
+          <MainLayout>
+            <TasksPage />
+          </MainLayout>
+        </PrivateRoute>
+      } />
+
+      <Route path="/kanban" element={
+        <PrivateRoute>
+          <MainLayout>
+            <KanbanPage />
+          </MainLayout>
+        </PrivateRoute>
+      } />
+
+      <Route path="/calendar" element={
+        <PrivateRoute>
+          <MainLayout>
+            <CalendarPage />
+          </MainLayout>
+        </PrivateRoute>
+      } />
+
+      <Route path="/invoices" element={
+        <PrivateRoute>
+          <MainLayout>
+            <InvoicesPage />
+          </MainLayout>
+        </PrivateRoute>
+      } />
+
+      <Route path="/time-tracker" element={
+        <PrivateRoute>
+          <MainLayout>
+            <TimeTrackerPage />
+          </MainLayout>
+        </PrivateRoute>
+      } />
+
+      <Route path="/reports" element={
+        <PrivateRoute>
+          <MainLayout>
+            <ReportsPage />
+          </MainLayout>
+        </PrivateRoute>
+      } />
+
+      {/* Catch all route */}
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+    </Routes>
+  );
+};
+
+export default AppRoutes;
+
+
+src/api/router.py
+from fastapi import APIRouter
+
+# Імпорт роутерів з модулів
+from .v1.router import api_router as v1_router
+
+# Головний роутер API
+api_router = APIRouter()
+
+# Підключення роутерів версій API
+api_router.include_router(v1_router, prefix="/api/v1")
+
+@api_router.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    return {"status": "healthy", "service": "Lawyer CRM API"}
+
+
+src/api/v1/router.py
+from fastapi import APIRouter
+
+# Імпорт роутерів з модулів
+from ...modules.auth.router import router as auth_router
+from ...modules.users.router import router as users_router
+from ...modules.cases.router import router as cases_router
+from ...modules.clients.router import router as clients_router
+from ...modules.documents.router import router as documents_router
+from ...modules.calendar.router import router as calendar_router
+from ...modules.tasks.router import router as tasks_router
+from ...modules.invoices.router import router as invoices_router
+from ...modules.hearings.router import router as hearings_router
+from ...modules.time_tracking.router import router as time_tracking_router
+from ...modules.notifications.router import router as notifications_router
+from ...modules.reports.router import router as reports_router
+from ...modules.knowledge.router import router as knowledge_router
+from ...modules.ai_assistant.router import router as ai_assistant_router
+
+# Головний роутер API v1
+api_router = APIRouter()
+
+# Підключення роутерів модулів
+api_router.include_router(auth_router, prefix="/auth", tags=["Authentication"])
+api_router.include_router(users_router, prefix="/users", tags=["Users"])
+api_router.include_router(cases_router, prefix="/cases", tags=["Cases"])
+api_router.include_router(clients_router, prefix="/clients", tags=["Clients"])
+api_router.include_router(documents_router, prefix="/documents", tags=["Documents"])
+api_router.include_router(calendar_router, prefix="/calendar", tags=["Calendar"])
+api_router.include_router(tasks_router, prefix="/tasks", tags=["Tasks"])
+api_router.include_router(invoices_router, prefix="/invoices", tags=["Invoices"])
+api_router.include_router(hearings_router, prefix="/hearings", tags=["Hearings"])
+api_router.include_router(time_tracking_router, prefix="/time-tracking", tags=["Time Tracking"])
+api_router.include_router(notifications_router, prefix="/notifications", tags=["Notifications"])
+api_router.include_router(reports_router, prefix="/reports", tags=["Reports"])
+api_router.include_router(knowledge_router, prefix="/knowledge", tags=["Knowledge Base"])
+api_router.include_router(ai_assistant_router, prefix="/ai-assistant", tags=["AI Assistant"])
+
+@api_router.get("/health")
+async def health_check():
+    """Health check endpoint"""
+    return {"status": "healthy", "service": "Lawyer CRM API v1"}
+
+
+src/modules/ai_assistant
+src/modules/auth
+src/modules/calendar
+src/modules/case_history
+src/modules/cases
+src/modules/clients
+src/modules/court_integration
+src/modules/dashboard
+src/modules/documents
+src/modules/hearings
+src/modules/integrations
+src/modules/invoices
+src/modules/knowledge
+src/modules/notifications
+src/modules/payments
+src/modules/reports
+src/modules/tasks
+src/modules/templates
+src/modules/time_tracking
+src/modules/users
+src/modules/workflows
+
+
+src/main.py
+import os
+import logging
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.redis import RedisBackend
+from redis import asyncio as aioredis
+
+from .core.config import settings
+from .core.database import db_manager, Base, get_db
+from .core.security import security_service
+from .api.v1.router import api_router
+
+# -----------------------------
+# 🔥 Вимкнути валідацію host у dev-режимі
+# -----------------------------
+if settings.ENVIRONMENT == "development":
+    from uvicorn.config import Config
+    Config.validate_host = lambda *args, **kwargs: True
+
+# -----------------------------
+# 🔥 Логування
+# -----------------------------
+logging.basicConfig(
+    level=getattr(logging, settings.LOG_LEVEL.upper()),
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler("app.log"),
+        logging.StreamHandler()
+    ]
+)
+
+logger = logging.getLogger(__name__)
+
+# -----------------------------
+# 🔥 Lifespan (startup / shutdown)
+# -----------------------------
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("✅ Starting application...")
+
+    # Ініціалізація БД
+    db_manager.init_db(str(settings.DATABASE_URL))
+
+    # Підключення Redis
+    redis = await aioredis.from_url(
+        str(settings.REDIS_URL),
+        encoding="utf8",
+        decode_responses=True
+    )
+    FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
+
+    # ❌ ВИДАЛЕНО: create_all() у dev — щоб не конфліктувати з Alembic
+    # Тепер тільки Alembic керує схемою БД
+
+    yield
+
+    logger.info("🛑 Shutting down application...")
+    await FastAPICache.close()
+
+# -----------------------------
+# 🔥 FastAPI ініціалізація
+# -----------------------------
+app = FastAPI(
+    title="Lawyer CRM API",
+    version="1.0.0",
+    lifespan=lifespan
+)
+
+# -----------------------------
+# 🔥 Middleware (без TrustedHostMiddleware у dev)
+# -----------------------------
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ❌ TrustedHostMiddleware ВИДАЛЕНО у dev
+
+app.add_middleware(
+    GZipMiddleware,
+    minimum_size=1000
+)
+
+# -----------------------------
+# 🔥 Роути
+# -----------------------------
+app.include_router(api_router, prefix=settings.API_PREFIX + settings.API_V1_STR)
+
+# -----------------------------
+# 🔥 Статичні файли
+# -----------------------------
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# -----------------------------
+# 🔥 Health check
+# -----------------------------
+@app.get("/health", tags=["Health"])
+async def health_check():
+    return {
+        "status": "healthy",
+        "environment": settings.ENVIRONMENT,
+        "version": "1.0.0"
+    }
+
+# -----------------------------
+# 🔥 Глобальна обробка помилок
+# -----------------------------
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request, exc):
+    logger.error(f"HTTP error: {exc.detail}")
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail}
+    )
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request, exc):
+    logger.error(f"Unhandled error: {str(exc)}")
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content={"detail": "Internal Server Error"}
+    )

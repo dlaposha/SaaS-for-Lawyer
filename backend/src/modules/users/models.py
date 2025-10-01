@@ -1,13 +1,16 @@
-from sqlalchemy import Column, String, DateTime, Boolean, Text
+# auth/models.py
+from sqlalchemy import Column, String, DateTime, Boolean, Text, Enum as SQLEnum
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
 from datetime import datetime
 from sqlalchemy.orm import relationship
 from src.core.database import Base
+from .enums import UserRole  # ← імпортуємо з enums
 
 class User(Base):
     __tablename__ = "users"
-    
+    __table_args__ = {"extend_existing": True}  # ← якщо вже є в іншому модулі
+
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     email = Column(String(255), unique=True, index=True, nullable=False)
     hashed_password = Column(String(255), nullable=False)
@@ -17,20 +20,21 @@ class User(Base):
     bio = Column(Text, nullable=True)
     timezone = Column(String(50), default="Europe/Kyiv")
     language = Column(String(10), default="uk")
-    
+
     # Права доступу
     is_active = Column(Boolean, default=True)
     is_superuser = Column(Boolean, default=False)
     is_verified = Column(Boolean, default=False)
-    
+
     # Роль користувача
-    role = Column(String(50), default="lawyer")  # lawyer, assistant, admin, etc.
-    
+    role = Column(SQLEnum(UserRole), default=UserRole.LAWYER)  # ← використовуємо з enums
+
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     last_login_at = Column(DateTime, nullable=True)
-    
+
     # Relationships
     cases = relationship("Case", back_populates="created_by")
     tasks = relationship("Task", back_populates="assigned_to")
+    time_entries = relationship("TimeEntry", back_populates="user")

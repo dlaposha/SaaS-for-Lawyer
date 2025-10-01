@@ -20,7 +20,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import SortableItem from '../components/SortableItem';
+import SortableItem from "../../components/Layout/SortableItem";
 
 const { Title } = Typography;
 

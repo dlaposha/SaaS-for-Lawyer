@@ -2,6 +2,7 @@ from pydantic import BaseModel, EmailStr, Field, validator
 from datetime import datetime
 from typing import Optional, List
 from uuid import UUID
+from src.modules.auth.enums import UserRole
 from enum import Enum
 
 class UserRole(str, Enum):

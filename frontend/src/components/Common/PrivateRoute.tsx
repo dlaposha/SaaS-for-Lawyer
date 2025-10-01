@@ -1,35 +1,26 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@hooks/useAuth';
-import { Spin } from 'antd';
+import FullPageSpinner from '@components/UI/FullPageSpinner';
 
-interface PrivateRouteProps {
+interface Props {
   children: React.ReactNode;
   requiredRole?: string;
 }
 
-export const PrivateRoute: React.FC<PrivateRouteProps> = ({ 
-  children, 
-  requiredRole 
-}) => {
-  const { user, isLoading, isAuthenticated } = useAuth();
+const PrivateRoute: React.FC<Props> = ({ children, requiredRole }) => {
+  const { isAuthenticated, isLoading, user } = useAuth();
   const location = useLocation();
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <Spin size="large" />
-      </div>
-    );
-  }
+  if (isLoading) return <FullPageSpinner />;
 
-  if (!isAuthenticated) {
+  if (!isAuthenticated)
     return <Navigate to="/login" state={{ from: location }} replace />;
-  }
 
-  if (requiredRole && user?.role !== requiredRole) {
-    return <Navigate to="/unauthorized" replace />;
-  }
+  if (requiredRole && user?.role !== requiredRole)
+    return <Navigate to="/dashboard" replace />;
 
   return <>{children}</>;
 };
+
+export default PrivateRoute;

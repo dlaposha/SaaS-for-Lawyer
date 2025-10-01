@@ -9,7 +9,6 @@ import {
   EyeTwoTone,
   TeamOutlined 
 } from '@ant-design/icons';
-import api from '../services/api';
 
 const { Option } = Select;
 const { Step } = Steps;
@@ -27,9 +26,21 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onCancel }) => {
   const [form] = Form.useForm();
 
   const steps = [
-    { title: t('personalInfo'), icon: <UserOutlined /> },
-    { title: t('accountDetails'), icon: <TeamOutlined /> },
-    { title: t('security'), icon: <LockOutlined /> }
+    { 
+      title: t('personalInfo'), 
+      icon: <UserOutlined />,
+      fields: ['email', 'full_name']
+    },
+    { 
+      title: t('accountDetails'), 
+      icon: <TeamOutlined />,
+      fields: ['role']
+    },
+    { 
+      title: t('security'), 
+      icon: <LockOutlined />,
+      fields: ['password', 'confirmPassword']
+    }
   ];
 
   const onFinish = async (values: any) => {
@@ -37,12 +48,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onCancel }) => {
     setError('');
     
     try {
-      await api.post('/auth/register', {
-        email: values.email,
-        full_name: values.full_name,
-        role: values.role,
-        password: values.password
-      });
+      // Демо-реєстрація
+      console.log('Registration values:', values);
       
       if (onSuccess) {
         onSuccess();
@@ -57,7 +64,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSuccess, onCancel }) => {
   };
 
   const nextStep = () => {
-    form.validateFields(steps[currentStep].fields as any[])
+    const currentFields = steps[currentStep].fields;
+    form.validateFields(currentFields)
       .then(() => setCurrentStep(currentStep + 1))
       .catch(() => {});
   };

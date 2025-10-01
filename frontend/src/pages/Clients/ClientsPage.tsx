@@ -13,7 +13,7 @@ import {
   message
 } from 'antd';
 import { PlusOutlined, TeamOutlined } from '@ant-design/icons';
-import api from '../services/api';
+import { demoApi } from "../../services/api";
 
 interface Client {
   id: string;

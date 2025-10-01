@@ -1,20 +1,27 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 
-const SortableItem: React.FC<{ id: string; children: React.ReactNode }> = ({ id, children }) => {
+interface SortableItemProps {
+  id: string;
+  children: React.ReactNode;
+}
+
+const SortableItem: React.FC<SortableItemProps> = ({ id, children }) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id,
   });
 
-  const style = transform ? CSS.Translate.toString(transform) : undefined;
+  const style = transform ? {
+    transform: CSS.Translate.toString(transform),
+  } : undefined;
 
   return (
     <div
       ref={setNodeRef}
-      {...attributes}
+      style={style}
       {...listeners}
-      style={{ ...attributes.style, transform: style }}
+      {...attributes}
       className="sortable-item"
     >
       {children}

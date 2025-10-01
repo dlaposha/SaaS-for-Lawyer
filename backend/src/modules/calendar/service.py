@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select, func, and_
+from sqlalchemy.future import select
+from sqlalchemy import func, and_
 from sqlalchemy.exc import SQLAlchemyError
 from uuid import UUID
 from typing import Optional, List, Dict, Any

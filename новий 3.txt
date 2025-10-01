@@ -1,0 +1,93 @@
+frontend/Dockerfile.dev
+# Dockerfile.dev
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Копіюємо package-файли
+COPY package*.json ./
+
+# Встановлюємо залежності
+RUN npm install --prefer-offline
+
+# Копіюємо решту файлів
+COPY . .
+
+# Відкриваємо порт
+EXPOSE 3000
+
+# Запускаємо dev-сервер
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "3000"]
+
+frontend/Dockerfile
+FROM node:18-alpine AS build-stage
+
+WORKDIR /app
+
+# Копіювання файлів залежностей
+COPY package*.json ./
+
+# Встановлення залежностей
+RUN npm ci --only=production --prefer-offline
+
+# Копіювання джерельного коду
+COPY . .
+
+# Будівництво додатку
+RUN npm run build
+
+# Production stage
+FROM nginx:stable-alpine as production-stage
+
+# Копіювання побудованих файлів
+COPY --from=build-stage /app/dist /usr/share/nginx/html
+
+# Копіювання конфігурації nginx
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Налаштування SSL (опціонально)
+RUN mkdir -p /etc/nginx/ssl
+
+# Відкриття портів
+EXPOSE 80 443
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost/health || exit 1
+
+CMD ["nginx", "-g", "daemon off;"]
+
+frontend.env
+GENERATE_SOURCEMAP=false
+DISABLE_ESLINT_PLUGIN=true
+INLINE_RUNTIME_CHUNK=false
+VITE_API_URL=http://localhost:8000
+
+
+backend/Dockerfile.dev
+FROM python:3.11-slim
+
+# Встановлення системних залежностей
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    libpq-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Встановлення Poetry
+RUN pip install poetry
+
+# Копіювання файлів залежностей
+WORKDIR /app
+COPY pyproject.toml poetry.lock* ./
+
+# Встановлення залежностей (включно з celery)
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-root --no-interaction --no-ansi
+
+# Копіювання коду
+COPY . .
+
+# Тепер celery доступний в $PATH
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

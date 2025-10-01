@@ -46,3 +46,4 @@ structlog==23.2.0
 # Додаткові залежності
 fastapi-cache2==0.2.1
 celery==5.3.6
+openai>=1.0.0

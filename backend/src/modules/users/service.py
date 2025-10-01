@@ -2,51 +2,46 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.exc import IntegrityError
 from typing import Optional, List
-import logging
+from uuid import UUID
+from datetime import datetime
 
-from . import models, schemas
+# Імпортуємо User з auth
+from src.modules.auth.models import User
+from src.modules.auth import schemas
 from src.core.security import get_password_hash, verify_password
-from src.core.exceptions import (
-    NotFoundException, 
-    DatabaseException, 
-    ValidationException
-)
+from src.core.exceptions import ValidationException, DatabaseException
+import logging
 
 logger = logging.getLogger(__name__)
 
 class UserService:
     def __init__(self, db: AsyncSession):
         self.db = db
-    
-    async def get_by_id(self, user_id: UUID) -> Optional[models.User]:
+
+    async def get_by_id(self, user_id: UUID) -> Optional[User]:
         try:
-            result = await self.db.execute(
-                select(models.User).where(models.User.id == user_id)
-            )
+            result = await self.db.execute(select(User).where(User.id == user_id))
             return result.scalar_one_or_none()
         except Exception as e:
             logger.error(f"Error fetching user by ID: {e}")
             raise DatabaseException("Failed to fetch user")
-    
-    async def get_by_email(self, email: str) -> Optional[models.User]:
+
+    async def get_by_email(self, email: str) -> Optional[User]:
         try:
-            result = await self.db.execute(
-                select(models.User).where(models.User.email == email)
-            )
+            result = await self.db.execute(select(User).where(User.email == email))
             return result.scalar_one_or_none()
         except Exception as e:
             logger.error(f"Error fetching user by email: {e}")
             raise DatabaseException("Failed to fetch user")
-    
-    async def create(self, user_data: schemas.UserCreate) -> models.User:
-        # Перевірка на існування користувача
+
+    async def create(self, user_data: schemas.UserCreate) -> User:
         existing_user = await self.get_by_email(user_data.email)
         if existing_user:
             raise ValidationException("User with this email already exists")
-        
+
         try:
             hashed_password = get_password_hash(user_data.password)
-            db_user = models.User(
+            db_user = User(
                 email=user_data.email,
                 hashed_password=hashed_password,
                 full_name=user_data.full_name,
@@ -55,12 +50,12 @@ class UserService:
                 timezone=user_data.timezone,
                 language=user_data.language
             )
-            
+
             self.db.add(db_user)
             await self.db.commit()
             await self.db.refresh(db_user)
             return db_user
-            
+
         except IntegrityError as e:
             await self.db.rollback()
             logger.error(f"User creation integrity error: {e}")
@@ -69,16 +64,16 @@ class UserService:
             await self.db.rollback()
             logger.error(f"User creation error: {e}")
             raise DatabaseException("Failed to create user")
-    
-    async def authenticate(self, email: str, password: str) -> Optional[models.User]:
+
+    async def authenticate(self, email: str, password: str) -> User:
         user = await self.get_by_email(email)
         if not user or not verify_password(password, user.hashed_password):
-            return None
+            raise ValidationException("Invalid email or password")
         if not user.is_active:
             raise ValidationException("User account is deactivated")
         return user
-    
-    async def update_last_login(self, user: models.User) -> None:
+
+    async def update_last_login(self, user: User) -> None:
         try:
             user.last_login_at = datetime.utcnow()
             await self.db.commit()

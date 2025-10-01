@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select, func
+from sqlalchemy import select, func  # Виправлений імпорт - func з sqlalchemy, не з sqlalchemy.future
 from sqlalchemy.exc import SQLAlchemyError
 from uuid import UUID
 from typing import Optional, List, Dict, Any
@@ -100,6 +100,7 @@ class TimeEntryService:
             for field, value in update_data.items():
                 setattr(db_time_entry, field, value)
             
+            self.db.add(db_time_entry)
             await self.db.commit()
             await self.db.refresh(db_time_entry)
             return db_time_entry

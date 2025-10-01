@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Form, Input, Button, Alert, Divider, Row, Col } from 'antd';
+import { Form, Input, Button, Alert, Divider, Row, Col, message } from 'antd';
 import { 
   UserOutlined, 
   LockOutlined, 
@@ -10,7 +10,7 @@ import {
   FacebookOutlined
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
+import { useAuth } from '@contexts/AuthContext';
 
 interface LoginFormProps {
   onSuccess?: () => void;
@@ -21,23 +21,24 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const onFinish = async (values: { email: string; password: string }) => {
     setLoading(true);
     setError('');
     
     try {
-      const response = await api.post('/auth/token', {
-        username: values.email,
-        password: values.password,
-      });
-      
-      const { access_token, refresh_token, user } = response.data;
-      
-      localStorage.setItem('access_token', access_token);
-      localStorage.setItem('refresh_token', refresh_token);
-      localStorage.setItem('user', JSON.stringify(user));
-      
+      // Демо-авторизація
+      const demoToken = 'demo-jwt-token-' + Date.now();
+      const demoUser = {
+        full_name: 'Дмитро Лапоші',
+        role: 'lawyer',
+        email: values.email,
+        firstName: 'Дмитро',
+        lastName: 'Лапоші'
+      };
+
+      login(demoToken, demoUser);
       message.success(t('loginSuccess'));
       
       if (onSuccess) {

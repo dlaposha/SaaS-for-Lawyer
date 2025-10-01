@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select, func
+from sqlalchemy import select, func, and_
 from sqlalchemy.exc import SQLAlchemyError
 from uuid import UUID
 from typing import Optional, List, Dict, Any
@@ -94,6 +94,7 @@ class HearingService:
             for field, value in update_data.items():
                 setattr(db_hearing, field, value)
             
+            self.db.add(db_hearing)
             await self.db.commit()
             await self.db.refresh(db_hearing)
             return db_hearing
@@ -123,8 +124,12 @@ class HearingService:
             
             result = await self.db.execute(
                 select(models.Hearing)
-                .where(models.Hearing.hearing_date.between(start_date, end_date))
-                .where(models.Hearing.status.in_(["scheduled", "confirmed"]))
+                .where(
+                    and_(
+                        models.Hearing.hearing_date.between(start_date, end_date),
+                        models.Hearing.status.in_(["scheduled", "confirmed"])
+                    )
+                )
                 .order_by(models.Hearing.hearing_date.asc())
             )
             return result.scalars().all()
@@ -141,25 +146,25 @@ class HearingService:
             type_counts = {}
             for hearing_type in models.HearingType:
                 type_counts[hearing_type.value] = len([
-                    h for h in hearings if h.type == hearing_type.value
+                    h for h in hearings if h.type == hearing_type
                 ])
             
             # Count by status
             status_counts = {}
             for status in models.HearingStatus:
                 status_counts[status.value] = len([
-                    h for h in hearings if h.status == status.value
+                    h for h in hearings if h.status == status
                 ])
             
             upcoming_hearings = len([
                 h for h in hearings 
-                if h.hearing_date >= datetime.utcnow() and h.status in ["scheduled", "confirmed"]
+                if h.hearing_date >= datetime.utcnow() and h.status in [models.HearingStatus.SCHEDULED, models.HearingStatus.CONFIRMED]
             ])
             
             return {
                 "total_hearings": len(hearings),
                 "upcoming_hearings": upcoming_hearings,
-                "completed_hearings": len([h for h in hearings if h.status == "completed"]),
+                "completed_hearings": len([h for h in hearings if h.status == models.HearingStatus.COMPLETED]),
                 "by_type": type_counts,
                 "by_status": status_counts
             }
