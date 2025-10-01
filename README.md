@@ -52,3 +52,11 @@ curl -X POST http://localhost:8000/payments -H "Content-Type: application/json" 
 ## Наступні кроки
 - Додати `Hearing`, `Task`, `StageHistory`, `CaseContact` (Модуль 1).
 - Підключити FullCalendar (UI) і Kanban (react-beautiful-dnd) у фронтенд (на окремому етапі).
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
