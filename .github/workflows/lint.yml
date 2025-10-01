@@ -6,6 +6,34 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Lint placeholder
-        run: echo "Linting will be implemented soon" && exit 0
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install linting tools
+      run: |
+        cd backend
+        pip install black flake8 isort mypy
+        
+    - name: Check code formatting with Black
+      run: |
+        cd backend
+        python -m black --check .
+        
+    - name: Check imports with isort
+      run: |
+        cd backend
+        python -m isort --check-only .
+        
+    - name: Lint with flake8
+      run: |
+        cd backend
+        python -m flake8 .
+        
+    - name: Type checking with mypy
+      run: |
+        cd backend
+        python -m mypy .

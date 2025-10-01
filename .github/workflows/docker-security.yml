@@ -1,0 +1,29 @@
+name: Docker Security Scan
+
+on:
+  push:
+    branches: [ master ]
+    paths: ['docker-compose.yml', 'Dockerfile*']
+  pull_request:
+    paths: ['docker-compose.yml', 'Dockerfile*']
+
+jobs:
+  trivy-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
