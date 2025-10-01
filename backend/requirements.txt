@@ -18,7 +18,7 @@ python-multipart==0.0.6
 redis==5.0.1
 
 # MinIO
-minio==7.2.0
+minio==7.2.18
 
 # Email
 python-dotenv==1.0.0
