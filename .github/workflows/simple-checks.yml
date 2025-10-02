@@ -1,23 +1,25 @@
-name: Simple Status Checks
+name: ✅ Simple Checks
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main, master, develop, test-ai-workflows ]
+  pull_request:
+    branches: [ main, master ]
 
 jobs:
-  tests:
-    name: Tests
+  basic-validation:
+    name: ✅ Basic Validation
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Tests passed" && exit 0
-
-  lint:
-    name: Linting  
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Linting passed" && exit 0
-
-  security:
-    name: Security Scan
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Security scan passed" && exit 0
-EOF
+      - uses: actions/checkout@v4
+      - name: Check file structure
+        run: |
+          echo "📁 Project Structure Check"
+          ls -la
+          [ -f "backend/requirements.txt" ] && echo "✅ Backend requirements found"
+          [ -f "frontend/package.json" ] && echo "✅ Frontend package.json found"
+      - name: Validate configuration files
+        run: |
+          echo "🔧 Configuration Check"
+          [ -f "docker-compose.yml" ] && echo "✅ Docker compose found"
+          [ -f ".github/workflows/" ] && echo "✅ GitHub Actions workflows found"

@@ -1,0 +1,47 @@
+name: ⚖️ Compliance Check
+
+on:
+  workflow_call:
+
+jobs:
+  gdpr-compliance:
+    name: 🇪🇺 GDPR Compliance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for personal data handling
+        run: |
+          echo "🔍 Checking GDPR compliance patterns..."
+          # Check for personal data patterns
+          grep -r -i "email\|phone\|address\|personal\|gdpr\|consent" \
+            --include="*.py" --include="*.ts" --include="*.tsx" \
+            frontend/src/ backend/src/ || echo "No explicit personal data patterns found"
+          
+          # Check for data encryption
+          grep -r -i "encrypt\|hash\|bcrypt" \
+            --include="*.py" backend/src/ || echo "No encryption patterns found"
+
+  data-protection:
+    name: 🛡️ Data Protection Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Analyze API data flows
+        run: |
+          echo "📊 Analyzing API data protection..."
+          # Check API endpoints for data exposure
+          find backend/src -name "*.py" -exec grep -l "@router\|@app" {} \; | \
+          xargs grep -h "def\|async def" | head -10
+
+  legal-patterns:
+    name: ⚖️ Legal Patterns Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check legal terminology
+        run: |
+          echo "⚖️ Checking legal patterns..."
+          # Legal-specific patterns for law SaaS
+          grep -r -i "client\|case\|invoice\|payment\|contract\|legal" \
+            --include="*.py" --include="*.ts" --include="*.tsx" . || \
+          echo "No legal patterns found - this might be expected"

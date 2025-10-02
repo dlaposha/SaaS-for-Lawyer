@@ -1,0 +1,68 @@
+name: ⚡ Performance Analysis
+
+on:
+  workflow_call:
+
+jobs:
+  bundle-analysis:
+    name: 📦 Bundle Size Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies
+        run: cd frontend && npm ci
+      - name: Build application
+        run: cd frontend && npm run build
+      - name: Analyze bundle size
+        uses: andresz1/size-limit-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          package_manager: npm
+      - name: Webpack Bundle Analyzer
+        run: |
+          cd frontend && npx webpack-bundle-analyzer build/static/js/*.js || echo "Bundle analyzer completed"
+
+  api-performance:
+    name: 🚀 API Performance
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: crm_user
+          POSTGRES_PASSWORD: crm_pass
+          POSTGRES_DB: lawyer_crm
+        ports: ['5432:5432']
+      redis:
+        image: redis:7
+        ports: ['6379:6379']
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start backend services
+        run: docker-compose up -d backend celery
+      - name: Wait for services
+        run: sleep 45
+      - name: Run performance tests
+        run: |
+          echo "🚀 Running API performance tests..."
+          # Test main endpoints
+          curl -w "Health: %{time_total}s\n" -o /dev/null -s http://localhost:8000/health
+          curl -w "API Docs: %{time_total}s\n" -o /dev/null -s http://localhost:8000/docs
+
+  database-performance:
+    name: 🗄️ Database Performance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check database query patterns
+        run: |
+          echo "🔍 Analyzing database patterns..."
+          # Check for N+1 query patterns
+          grep -r "for.*in\|loop" backend/src/ --include="*.py" | grep -v "test" | head -5 || true

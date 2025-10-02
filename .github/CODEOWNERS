@@ -1,1 +1,20 @@
+# Global owners
 * @dlaposha
+
+# Backend code owners
+/backend/ @dlaposha
+
+# Frontend code owners  
+/frontend/ @dlaposha
+
+# GitHub Actions
+/.github/workflows/ @dlaposha
+
+# Documentation
+/docs/ @dlaposha
+README.md @dlaposha
+
+# Configuration files
+docker-compose.yml @dlaposha
+pyproject.toml @dlaposha
+package.json @dlaposha

@@ -1,0 +1,86 @@
+name: 🚀 AI Master Pipeline
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master ]
+  schedule:
+    - cron: '0 6 * * 1'  # Weekly on Monday 6 AM
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+  checks: write
+
+jobs:
+  security-scan:
+    uses: ./.github/workflows/security-scan.yml
+    permissions:
+      security-events: write
+      contents: read
+    secrets: inherit
+
+  code-quality:
+    uses: ./.github/workflows/code-quality.yml
+    secrets: inherit
+
+  ai-analysis:
+    uses: ./.github/workflows/ai-enhanced-analysis.yml
+    secrets: inherit
+
+  ai-intelligence:
+    uses: ./.github/workflows/ai-intelligence.yml
+    secrets: inherit
+
+  compliance-check:
+    uses: ./.github/workflows/compliance-check.yml
+    secrets: inherit
+
+  performance:
+    uses: ./.github/workflows/performance.yml
+    secrets: inherit
+
+  ai-decision-gate:
+    name: 🎯 AI Decision Gate
+    runs-on: ubuntu-latest
+    needs: [security-scan, code-quality, ai-analysis, ai-intelligence, compliance-check, performance]
+    if: always()
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: 🤖 Aggregate AI Results
+        run: |
+          echo "🤖 AI MASTER PIPELINE RESULTS"
+          echo "================================"
+          echo "🔒 Security Scan: ${{ needs.security-scan.result }}"
+          echo "📝 Code Quality: ${{ needs.code-quality.result }}"
+          echo "🧠 AI Analysis: ${{ needs.ai-analysis.result }}"
+          echo "💡 AI Intelligence: ${{ needs.ai-intelligence.result }}"
+          echo "⚖️ Compliance: ${{ needs.compliance-check.result }}"
+          echo "⚡ Performance: ${{ needs.performance.result }}"
+          echo "================================"
+
+          if [[ "${{ needs.security-scan.result }}" == "success" ]] && \
+             [[ "${{ needs.code-quality.result }}" == "success" ]] && \
+             [[ "${{ needs.ai-analysis.result }}" == "success" ]] && \
+             [[ "${{ needs.ai-intelligence.result }}" == "success" ]] && \
+             [[ "${{ needs.compliance-check.result }}" == "success" ]] && \
+             [[ "${{ needs.performance.result }}" == "success" ]]; then
+            echo "✅ ALL AI CHECKS PASSED - Ready for merge"
+            exit 0
+          else
+            echo "❌ SOME AI CHECKS FAILED - Review required"
+            # Generate detailed failure report
+            echo "Failed checks:"
+            [[ "${{ needs.security-scan.result }}" != "success" ]] && echo "  - Security Scan"
+            [[ "${{ needs.code-quality.result }}" != "success" ]] && echo "  - Code Quality"
+            [[ "${{ needs.ai-analysis.result }}" != "success" ]] && echo "  - AI Analysis"
+            [[ "${{ needs.ai-intelligence.result }}" != "success" ]] && echo "  - AI Intelligence"
+            [[ "${{ needs.compliance-check.result }}" != "success" ]] && echo "  - Compliance"
+            [[ "${{ needs.performance.result }}" != "success" ]] && echo "  - Performance"
+            exit 1
+          fi

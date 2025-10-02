@@ -1,0 +1,65 @@
+name: 📝 Code Quality
+
+on:
+  workflow_call:
+
+jobs:
+  python-quality:
+    name: 🐍 Python Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: backend/requirements.txt
+      - name: Install dependencies
+        run: |
+          cd backend
+          pip install -r requirements.txt
+          pip install black flake8 mypy bandit ruff
+      - name: Check code formatting with Black
+        run: cd backend && black --check .
+      - name: Lint with flake8
+        run: cd backend && flake8 .
+      - name: Type checking with mypy
+        run: cd backend && mypy .
+      - name: Security lint with bandit
+        run: cd backend && bandit -r .
+      - name: Fast linting with ruff
+        run: cd backend && ruff check .
+
+  typescript-quality:
+    name: ⚡ TypeScript Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies
+        run: cd frontend && npm ci
+      - name: TypeScript compilation
+        run: cd frontend && npx tsc --noEmit --strict
+      - name: ESLint check
+        run: cd frontend && npx eslint . --ext .ts,.tsx --max-warnings 0
+      - name: Prettier check
+        run: cd frontend && npx prettier --check .
+
+  sonarqube:
+    name: 📊 SonarQube Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

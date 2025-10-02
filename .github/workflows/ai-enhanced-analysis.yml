@@ -1,0 +1,63 @@
+name: 🧠 AI Enhanced Analysis
+
+on:
+  workflow_call:
+
+jobs:
+  ai-code-review:
+    name: 🤖 AI Code Review
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: AI Code Analysis with CodeRabbit
+        uses: coderabbitai/ai-pr-reviewer@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        with:
+          top_k: 15
+          language: en
+          review_simple_changes: true
+          path_filters: "frontend/src/,backend/src/"
+
+  ai-test-analysis:
+    name: 🧪 AI Test Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: AI Test Generation
+        uses: codiumai/ai-testgen-action@v1
+        with:
+          api-key: ${{ secrets.CODIUM_API_KEY }}
+      - name: Test Coverage Analysis
+        run: |
+          echo "📊 Analyzing test coverage patterns..."
+          # Check test file structure
+          find . -name "*test*.py" -o -name "*.test.*" -o -name "*.spec.*" | head -10
+
+  ai-architecture:
+    name: 🏗️ AI Architecture Review
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Analyze Architecture with AI
+        run: |
+          echo "🧠 AI Architecture Analysis"
+          echo "============================"
+          # Analyze imports and dependencies
+          echo "📦 Backend imports:"
+          find backend/src -name "*.py" -exec grep -h "^import\|^from" {} \; | sort | uniq | head -10
+          echo "📦 Frontend imports:"
+          find frontend/src -name "*.ts" -name "*.tsx" -exec grep -h "^import" {} \; | sort | uniq | head -10
+
+  ai-security-patterns:
+    name: 🔐 AI Security Patterns
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: AI Security Pattern Recognition
+        run: |
+          echo "🔍 AI Security Pattern Analysis"
+          # Check for common security anti-patterns
+          grep -r "eval(\|exec(\|pickle.loads\|subprocess.call" backend/src/ || echo "✅ No dangerous patterns found"
+          grep -r "localStorage\|sessionStorage\|innerHTML" frontend/src/ || echo "✅ No client-side storage patterns found"

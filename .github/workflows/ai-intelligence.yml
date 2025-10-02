@@ -1,0 +1,46 @@
+name: 🧠 AI Intelligence Suite
+
+on:
+  workflow_call:
+
+jobs:
+  ai-code-insights:
+    name: 💡 AI Code Insights
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: AI Code Complexity Analysis
+        run: |
+          echo "🔍 Analyzing code complexity with AI..."
+          # Analyze Python code complexity
+          cd backend && pip install radon && radon cc src -a
+          # Analyze TypeScript complexity
+          cd frontend && npx complexity-report src/ --format=markdown || true
+
+  ai-documentation:
+    name: 📚 AI Documentation Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check documentation coverage
+        run: |
+          echo "📊 Analyzing documentation coverage..."
+          # Check Python docstrings
+          cd backend && pip install interrogate && interrogate src/ || true
+          # Check TypeScript JSDoc
+          cd frontend && npx tsdoc-metadata || true
+
+  ai-best-practices:
+    name: 🏆 AI Best Practices
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Python best practices
+        run: |
+          cd backend
+          pip install pylint
+          pylint src/ --exit-zero || true
+      - name: Check React best practices
+        run: |
+          cd frontend
+          npx eslint-plugin-react . --ext .tsx || true

@@ -1,14 +1,44 @@
 version: 2
-# updates:
-#   - package-ecosystem: "pip"
-#     directory: "/backend"
-#     schedule:
-#       interval: "weekly"
-      day: "monday"
-    open-pull-requests-limit: 10
-
-  - package-ecosystem: "docker"
-    directory: "/"
+updates:
+  # npm dependencies for frontend
+  - package-ecosystem: "npm"
+    directory: "/frontend"
     schedule:
       interval: "weekly"
       day: "monday"
+    open-pull-requests-limit: 10
+    labels: ["dependencies", "frontend", "automated"]
+    versioning-strategy: auto
+    commit-message:
+      prefix: "⬆️"
+      include: "scope"
+
+  # Python dependencies for backend
+  - package-ecosystem: "pip"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "backend", "automated"]
+    versioning-strategy: auto
+    commit-message:
+      prefix: "⬆️"
+      include: "scope"
+
+  # Docker dependencies
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 3
+    labels: ["dependencies", "docker", "automated"]
+    versioning-strategy: auto
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 5
+    labels: ["dependencies", "github-actions", "automated"]

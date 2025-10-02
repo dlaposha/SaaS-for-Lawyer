@@ -1,4 +1,7 @@
 cd /e/Projects/SaaS-for-Lawyer
+cd /c/Users/User/Project/SaaS-for-Lawyer
+
+git remote set-url origin https://github.com/dlaposha/SaaS-for-Lawyer.git
 docker compose down -v
 docker-compose -f docker-compose.dev.yml down -v
 

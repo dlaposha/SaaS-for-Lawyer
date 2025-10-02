@@ -1,49 +1,57 @@
-# Core
+# Core Framework
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
 pydantic==2.5.0
 pydantic-settings==2.1.0
 
 # Database
-sqlalchemy==2.0.23
+sqlmodel==0.0.22
 alembic==1.12.1
+asyncpg==0.29.0
 psycopg2-binary==2.9.9
 
-# Security
+# Security & Authentication
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
+bcrypt==4.0.1
 python-multipart==0.0.6
 
-# Redis
+# Caching & Task Queue
 redis==5.0.1
+celery[redis]==5.3.6
+flower==2.0.1
 
-# MinIO
+# File Storage & Processing
 minio==7.2.0
+python-docx==1.1.0
+pdfplumber==0.10.3
 
-# Email
+# AI & Machine Learning
+openai==1.9.0
+langchain==0.1.0
+
+# HTTP Clients & Email
+httpx==0.25.2
+email-validator==2.1.0
+aiosmtplib==3.0.1
 python-dotenv==1.0.0
 
-# Validation
-email-validator==2.1.0
+# Monitoring & Observability
+structlog==23.2.0
+prometheus-client==0.19.0
+sentry-sdk==1.40.0
 
-# Testing
+# Testing & Development
 pytest==7.4.3
 pytest-asyncio==0.21.1
-httpx==0.25.2
-
-# Development
+pytest-cov==4.1.0
 black==23.11.0
-flake8==6.1.0
+ruff==0.1.6
 mypy==1.7.1
 pre-commit==3.5.0
 
-# Monitoring
-prometheus-client==0.19.0
-
-# Logging
-structlog==23.2.0
-
-# Додаткові залежності
-fastapi-cache2==0.2.1
-celery==5.3.6
-openai>=1.0.0
+# Security Scanning
+bandit==1.7.5
+safety==2.3.5
+vulture==2.10
+radon==5.1.0
