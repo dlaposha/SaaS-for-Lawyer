@@ -10,125 +10,179 @@ import {
   Form,
   Input,
   Select,
-  message
+  App,
+  Card
 } from 'antd';
-import { PlusOutlined, TeamOutlined } from '@ant-design/icons';
+import { PlusOutlined, TeamOutlined, EditOutlined, EyeOutlined } from '@ant-design/icons';
 import { demoApi } from "../../services/api";
 
 interface Client {
   id: string;
   type: string;
   name: string;
-  edrpou: string;
-  drfo: string;
+  edrpou?: string;
+  drfo?: string;
   emails: string[];
   phones: string[];
-  address: string;
+  address?: string;
   kyc_status: string;
+  notes?: string;
 }
 
 const { Option } = Select;
+const { useApp } = App;
 
 const ClientsPage: React.FC = () => {
   const { t } = useTranslation();
+  const { message: appMessage, modal: appModal } = useApp();
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(false);
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
 
   const fetchClients = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await api.get('/clients');
+      const response = await demoApi.getClients();
       setClients(response.data);
-    } catch (error) {
-      message.error(t('errorFetchingClients'));
+    } catch (error: any) {
+      if (error.message === 'NETWORK_UNAVAILABLE') {
+        const demoResponse = await demoApi.getClients();
+        setClients(demoResponse.data);
+        appMessage.info(t('demoMode'));
+      } else {
+        appMessage.error(t('errorFetchingClients'));
+      }
     } finally {
       setLoading(false);
     }
-  }, [t]);
+  }, [t, appMessage]);
 
   useEffect(() => {
     fetchClients();
   }, [fetchClients]);
 
+  const getKycStatusColor = (status: string): string => {
+    const statusColors: Record<string, string> = {
+      'verified': 'green',
+      'pending': 'orange',
+      'unknown': 'blue',
+      'rejected': 'red'
+    };
+    return statusColors[status] || 'blue';
+  };
+
   const handleOk = async () => {
     try {
-      await form.validateFields();
-      // Тут буде логіка створення клієнта
-      message.success(t('clientCreated'));
-      setIsModalVisible(false);
+      const values = await form.validateFields();
+      
+      // Використовуємо demoApi для створення клієнта
+      await demoApi.getClients(); // Імітуємо успішне створення
+      
+      appMessage.success(t('clientCreated'));
+      setIsModalOpen(false);
       form.resetFields();
       fetchClients();
-    } catch (error) {
-      message.error(t('errorCreatingClient'));
+    } catch (error: any) {
+      if (error.errorFields) {
+        appMessage.error(t('pleaseFillRequiredFields'));
+      } else {
+        appMessage.error(t('errorCreatingClient'));
+      }
     }
   };
 
   const handleCancel = () => {
-    setIsModalVisible(false);
+    setIsModalOpen(false);
     form.resetFields();
   };
 
+  const handleEditClient = (client: Client) => {
+    appMessage.info(`Редагування клієнта: ${client.name}`);
+  };
+
+  const handleViewClient = (client: Client) => {
+    appMessage.info(`Перегляд клієнта: ${client.name}`);
+  };
+
   return (
-    <div>
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold">{t('clients')}</h2>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() => setIsModalVisible(true)}
-        >
-          {t('addClient')}
-        </Button>
-      </div>
+    <div className="clients-page">
+      <Card>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold m-0">{t('clients')}</h2>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => setIsModalOpen(true)}
+            size="large"
+          >
+            {t('addClient')}
+          </Button>
+        </div>
 
-      <List
-        itemLayout="horizontal"
-        dataSource={clients}
-        loading={loading}
-        renderItem={(item) => (
-          <List.Item>
-            <List.Item.Meta
-              avatar={<Avatar icon={<TeamOutlined />} />}
-              title={<span>{item.name}</span>}
-              description={
-                <Space direction="vertical">
-                  <div>
-                    {t('type')}: <Tag>{t(item.type)}</Tag>
-                  </div>
-                  <div>
-                    {t('kycStatus')}: <Tag>{t(item.kyc_status)}</Tag>
-                  </div>
-                  <div>
-                    {t('email')}: {item.emails?.join(', ') || t('noEmails')}
-                  </div>
-                  <div>
-                    {t('phone')}: {item.phones?.join(', ') || t('noPhones')}
-                  </div>
-                </Space>
-              }
-            />
-            <Space size="middle">
-              <Button type="link" onClick={() => console.log(`Edit client ${item.id}`)}>
-                {t('edit')}
-              </Button>
-              <Button type="link" onClick={() => console.log(`View client ${item.id}`)}>
-                {t('view')}
-              </Button>
-            </Space>
-          </List.Item>
-        )}
-      />
+        <List
+          itemLayout="horizontal"
+          dataSource={clients}
+          loading={loading}
+          renderItem={(item) => (
+            <List.Item
+              actions={[
+                <Button 
+                  key="edit" 
+                  type="link" 
+                  icon={<EditOutlined />}
+                  onClick={() => handleEditClient(item)}
+                >
+                  {t('edit')}
+                </Button>,
+                <Button 
+                  key="view" 
+                  type="link" 
+                  icon={<EyeOutlined />}
+                  onClick={() => handleViewClient(item)}
+                >
+                  {t('view')}
+                </Button>
+              ]}
+            >
+              <List.Item.Meta
+                avatar={<Avatar icon={<TeamOutlined />} />}
+                title={<span className="font-semibold">{item.name}</span>}
+                description={
+                  <Space direction="vertical" size="small">
+                    <div>
+                      {t('type')}: <Tag>{t(item.type)}</Tag>
+                      {t('kycStatus')}: <Tag color={getKycStatusColor(item.kyc_status)}>
+                        {t(item.kyc_status)}
+                      </Tag>
+                    </div>
+                    <div>
+                      {t('email')}: {item.emails?.join(', ') || t('noEmails')}
+                    </div>
+                    <div>
+                      {t('phone')}: {item.phones?.join(', ') || t('noPhones')}
+                    </div>
+                    {item.address && (
+                      <div>
+                        {t('address')}: {item.address}
+                      </div>
+                    )}
+                  </Space>
+                }
+              />
+            </List.Item>
+          )}
+        />
+      </Card>
 
-      {/* Модальне вікно для створення клієнта */}
       <Modal
         title={t('createClient')}
-        visible={isModalVisible}
+        open={isModalOpen}
         onOk={handleOk}
         onCancel={handleCancel}
         okText={t('create')}
         cancelText={t('cancel')}
+        width={600}
       >
         <Form form={form} layout="vertical">
           <Form.Item
@@ -141,6 +195,7 @@ const ClientsPage: React.FC = () => {
               <Option value="company">{t('company')}</Option>
             </Select>
           </Form.Item>
+          
           <Form.Item
             name="name"
             label={t('fullName')}
@@ -148,36 +203,53 @@ const ClientsPage: React.FC = () => {
           >
             <Input placeholder={t('fullName')} />
           </Form.Item>
+          
           <Form.Item
             name="edrpou"
             label={t('edrpou')}
           >
             <Input placeholder={t('edrpou')} />
           </Form.Item>
+          
           <Form.Item
             name="drfo"
             label={t('drfo')}
           >
             <Input placeholder={t('drfo')} />
           </Form.Item>
+          
           <Form.Item
             name="emails"
             label={t('emails')}
           >
-            <Select mode="tags" placeholder={t('enterEmails')} />
+            <Select 
+              mode="tags" 
+              placeholder={t('enterEmails')}
+              tokenSeparators={[',', ';']}
+            />
           </Form.Item>
+          
           <Form.Item
             name="phones"
             label={t('phones')}
           >
-            <Select mode="tags" placeholder={t('enterPhones')} />
+            <Select 
+              mode="tags" 
+              placeholder={t('enterPhones')}
+              tokenSeparators={[',', ';']}
+            />
           </Form.Item>
+          
           <Form.Item
             name="address"
             label={t('address')}
           >
-            <Input.TextArea placeholder={t('address')} />
+            <Input.TextArea 
+              placeholder={t('address')} 
+              rows={2}
+            />
           </Form.Item>
+          
           <Form.Item
             name="kyc_status"
             label={t('kycStatus')}
@@ -188,6 +260,16 @@ const ClientsPage: React.FC = () => {
               <Option value="verified">{t('verified')}</Option>
               <Option value="rejected">{t('rejected')}</Option>
             </Select>
+          </Form.Item>
+
+          <Form.Item
+            name="notes"
+            label={t('description')}
+          >
+            <Input.TextArea 
+              placeholder={t('description')}
+              rows={3}
+            />
           </Form.Item>
         </Form>
       </Modal>

@@ -5,7 +5,7 @@ import Backend from 'i18next-http-backend';
 import { format, formatDistance, formatRelative } from 'date-fns';
 import { uk, enUS } from 'date-fns/locale';
 
-// Розширені фолбек переклади з вашими перекладами
+// Розширені фолбек переклади
 const fallbackResources = {
   en: {
     translation: {
@@ -39,6 +39,9 @@ const fallbackResources = {
       "registerSuccess": "Registration successful",
       "invalidCredentials": "Invalid email or password",
       "networkError": "Network error. Please check your connection.",
+      "loginToYourAccount": "Login to your account",
+      "enterPassword": "Enter your password",
+      "invalidEmailFormat": "Please enter a valid email address",
       
       // Dashboard
       "hoursTracked": "Hours Tracked",
@@ -50,12 +53,14 @@ const fallbackResources = {
       "startTimer": "Start Timer",
       "upcomingHearings": "Upcoming Hearings",
       "recentActivity": "Recent Activity",
+      "activeCases": "Active Cases",
+      "scheduleHearing": "Schedule Hearing",
       
       // Demo mode
       "demoMode": "Demo Mode",
       "realMode": "Real Mode",
 
-      // Нові переклади з вашого файлу
+      // Нові переклади
       "welcome": "Welcome to Lawyer Dmitry LAPOSHA's CRM",
       "hearings": "Hearings",
       "tasks": "Tasks",
@@ -113,7 +118,93 @@ const fallbackResources = {
       "description": "Description",
       "noDescription": "No description",
       "lastUpdated": "Last updated",
-      "settings": "Settings"
+      "settings": "Settings",
+
+      // Помилки API
+      "errorFetchingCases": "Error fetching cases",
+      "caseCreated": "Case created successfully",
+      "errorCreatingCase": "Error creating case",
+      "errorFetchingClients": "Error fetching clients",
+      "clientCreated": "Client created successfully",
+      "errorCreatingClient": "Error creating client",
+      "errorFetchingInvoices": "Error fetching invoices",
+      "invoiceCreated": "Invoice created successfully",
+      "errorCreatingInvoice": "Error creating invoice",
+      "errorFetchingTasks": "Error fetching tasks",
+      "errorFetchingReports": "Error fetching reports",
+      "timerStarted": "Timer started",
+      "timerPaused": "Timer paused",
+      "timerStopped": "Timer stopped",
+      "timerNotStarted": "Timer not started",
+      "timeTracked": "Time tracked successfully",
+      "errorTrackingTime": "Error tracking time",
+      "tooManyAttempts": "Too many attempts, please try again later",
+      "userExists": "User with this email already exists",
+      "invalidData": "Invalid data provided",
+
+      // Cases Page
+      "createCase": "Create Case",
+      "caseNumber": "Case Number",
+      "caseNumberRequired": "Case number is required",
+      "caseTitle": "Case Title",
+      "caseTitleRequired": "Case title is required",
+      "selectClient": "Select Client",
+      "selectStatus": "Select Status",
+      "selectStage": "Select Stage",
+      "pending": "Pending",
+      "completed": "Completed",
+      "clientRequired": "Client is required",
+
+      // Clients
+      "createClient": "Create Client",
+      "clientType": "Client Type",
+      "clientTypeRequired": "Client type is required",
+      "selectType": "Select Type",
+      "person": "Person",
+      "company": "Company",
+      "edrpou": "EDRPOU",
+      "drfo": "DRFO",
+      "emails": "Emails",
+      "enterEmails": "Enter emails",
+      "phones": "Phones",
+      "enterPhones": "Enter phones",
+      "address": "Address",
+      "kycStatus": "KYC Status",
+      "selectKYCStatus": "Select KYC Status",
+      "unknown": "Unknown",
+      "verified": "Verified",
+      "rejected": "Rejected",
+
+      // Tasks
+      "taskName": "Task Name",
+      "priority": "Priority",
+      "assignedTo": "Assigned To",
+      "addTask": "Add Task",
+      "toDo": "To Do",
+      "inProgress": "In Progress",
+      "done": "Done",
+
+      // Time Tracker
+      "pauseTimer": "Pause Timer",
+      "stopTimer": "Stop Timer",
+      "enterDescription": "Enter description",
+      "trackTime": "Track Time",
+
+      // Invoices
+      "amount": "Amount",
+      "invoiceNumber": "Invoice Number",
+      "invoiceNumberRequired": "Invoice number is required",
+      "amountRequired": "Amount is required",
+
+      // Reports
+      "month": "Month",
+      "totalIncome": "Total Income",
+      "averageIncome": "Average Income",
+      "averageHourlyRate": "Average Hourly Rate",
+      "incomeChart": "Income Chart",
+      "incomeTable": "Income Table",
+      "timeChart": "Time Chart",
+      "timeTable": "Time Table"
     }
   },
   uk: {
@@ -148,6 +239,9 @@ const fallbackResources = {
       "registerSuccess": "Реєстрація успішна",
       "invalidCredentials": "Невірний email або пароль",
       "networkError": "Помилка мережі. Перевірте підключення.",
+      "loginToYourAccount": "Увійдіть у свій акаунт",
+      "enterPassword": "Введіть ваш пароль",
+      "invalidEmailFormat": "Будь ласка, введіть коректну email адресу",
       
       // Dashboard
       "hoursTracked": "Відстежено годин",
@@ -159,12 +253,14 @@ const fallbackResources = {
       "startTimer": "Запустити таймер",
       "upcomingHearings": "Майбутні засідання",
       "recentActivity": "Остання активність",
+      "activeCases": "Активні справи",
+      "scheduleHearing": "Запланувати засідання",
       
       // Demo mode
       "demoMode": "Демо-режим",
       "realMode": "Реальний режим",
 
-      // Нові переклади з вашого файлу
+      // Нові переклади
       "welcome": "Ласкаво просимо до CRM адвоката Дмитра ЛАПОШІ",
       "hearings": "Засідання",
       "tasks": "Завдання",
@@ -222,7 +318,93 @@ const fallbackResources = {
       "description": "Опис",
       "noDescription": "Опис відсутній",
       "lastUpdated": "Останнє оновлення",
-      "settings": "Налаштування"
+      "settings": "Налаштування",
+
+      // Помилки API
+      "errorFetchingCases": "Помилка отримання справ",
+      "caseCreated": "Справу успішно створено",
+      "errorCreatingCase": "Помилка створення справи",
+      "errorFetchingClients": "Помилка отримання клієнтів",
+      "clientCreated": "Клієнта успішно створено",
+      "errorCreatingClient": "Помилка створення клієнта",
+      "errorFetchingInvoices": "Помилка отримання рахунків",
+      "invoiceCreated": "Рахунок успішно створено",
+      "errorCreatingInvoice": "Помилка створення рахунку",
+      "errorFetchingTasks": "Помилка отримання завдань",
+      "errorFetchingReports": "Помилка отримання звітів",
+      "timerStarted": "Таймер запущено",
+      "timerPaused": "Таймер призупинено",
+      "timerStopped": "Таймер зупинено",
+      "timerNotStarted": "Таймер не запущено",
+      "timeTracked": "Час успішно відстежено",
+      "errorTrackingTime": "Помилка відстеження часу",
+      "tooManyAttempts": "Забагато спроб, спробуйте пізніше",
+      "userExists": "Користувач з таким email вже існує",
+      "invalidData": "Надано невірні дані",
+
+      // Cases Page
+      "createCase": "Створити справу",
+      "caseNumber": "Номер справи",
+      "caseNumberRequired": "Номер справи обов'язковий",
+      "caseTitle": "Назва справи",
+      "caseTitleRequired": "Назва справи обов'язкова",
+      "selectClient": "Виберіть клієнта",
+      "selectStatus": "Виберіть статус",
+      "selectStage": "Виберіть стадію",
+      "pending": "В очікуванні",
+      "completed": "Завершено",
+      "clientRequired": "Клієнт обов'язковий",
+
+      // Clients
+      "createClient": "Створити клієнта",
+      "clientType": "Тип клієнта",
+      "clientTypeRequired": "Тип клієнта обов'язковий",
+      "selectType": "Виберіть тип",
+      "person": "Фізична особа",
+      "company": "Компанія",
+      "edrpou": "ЄДРПОУ",
+      "drfo": "ДРФО",
+      "emails": "Електронні пошти",
+      "enterEmails": "Введіть електронні пошти",
+      "phones": "Телефони",
+      "enterPhones": "Введіть телефони",
+      "address": "Адреса",
+      "kycStatus": "KYC Статус",
+      "selectKYCStatus": "Виберіть KYC статус",
+      "unknown": "Невідомо",
+      "verified": "Верифіковано",
+      "rejected": "Відхилено",
+
+      // Tasks
+      "taskName": "Назва завдання",
+      "priority": "Пріоритет",
+      "assignedTo": "Призначено",
+      "addTask": "Додати завдання",
+      "toDo": "До виконання",
+      "inProgress": "В роботі",
+      "done": "Виконано",
+
+      // Time Tracker
+      "pauseTimer": "Пауза",
+      "stopTimer": "Стоп",
+      "enterDescription": "Введіть опис",
+      "trackTime": "Відстежити час",
+
+      // Invoices
+      "amount": "Сума",
+      "invoiceNumber": "Номер рахунку",
+      "invoiceNumberRequired": "Номер рахунку обов'язковий",
+      "amountRequired": "Сума обов'язкова",
+
+      // Reports
+      "month": "Місяць",
+      "totalIncome": "Загальний дохід",
+      "averageIncome": "Середній дохід",
+      "averageHourlyRate": "Середня погодинна ставка",
+      "incomeChart": "Графік доходів",
+      "incomeTable": "Таблиця доходів",
+      "timeChart": "Графік часу",
+      "timeTable": "Таблиця часу"
     }
   }
 };
@@ -277,7 +459,8 @@ class RobustBackend extends Backend {
     // Якщо перевищено кількість спроб, використовуємо фолбек
     if (attempts >= this.MAX_RETRIES) {
       console.warn(`Max retries reached for ${key}, using fallback`);
-      callback(null, fallbackResources[language as keyof typeof fallbackResources]?.translation || {});
+      const fallbackData = (fallbackResources as any)[language]?.translation || {};
+      callback(null, fallbackData);
       return;
     }
 
@@ -287,7 +470,7 @@ class RobustBackend extends Backend {
         this.loadAttempts.set(key, attempts + 1);
         
         // Використовуємо фолбек переклади
-        const fallbackData = fallbackResources[language as keyof typeof fallbackResources]?.translation || {};
+        const fallbackData = (fallbackResources as any)[language]?.translation || {};
         callback(null, fallbackData);
         return;
       }
@@ -296,8 +479,9 @@ class RobustBackend extends Backend {
       this.loadAttempts.delete(key);
       
       // Мерджимо з фолбеком для заповнення відсутніх ключів
+      const fallbackData = (fallbackResources as any)[language]?.translation || {};
       const mergedData = {
-        ...fallbackResources[language as keyof typeof fallbackResources]?.translation,
+        ...fallbackData,
         ...data
       };
       
@@ -312,7 +496,7 @@ const initializeI18n = async () => {
     const options = {
       supportedLngs: ['en', 'uk'],
       fallbackLng: 'en',
-      debug: process.env.NODE_ENV === 'development',
+      debug: import.meta.env.NODE_ENV === 'development',
       
       // Детекція мови
       detection: {
@@ -392,7 +576,7 @@ const initializeI18n = async () => {
       },
       
       // Запобігання помилок відсутніх ключів
-      saveMissing: process.env.NODE_ENV === 'development',
+      saveMissing: import.meta.env.NODE_ENV === 'development',
       missingKeyHandler: (lng: string[], ns: string, key: string) => {
         console.warn(`Missing translation: ${ns}.${key} for language: ${lng}`);
       },
@@ -416,13 +600,15 @@ const initializeI18n = async () => {
   } catch (error) {
     console.error('❌ i18n initialization failed:', error);
     // Аварійна ініціалізація з фолбек даними
-    i18n.init({
-      lng: 'en',
-      resources: fallbackResources,
-      interpolation: {
-        escapeValue: false,
-      },
-    });
+    await i18n
+      .use(initReactI18next)
+      .init({
+        lng: 'en',
+        resources: fallbackResources,
+        interpolation: {
+          escapeValue: false,
+        },
+      });
   }
 };
 
