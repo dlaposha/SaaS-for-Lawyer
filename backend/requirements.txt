@@ -47,3 +47,4 @@ structlog==23.2.0
 fastapi-cache2==0.2.1
 celery==5.3.6
 openai>=1.0.0
+zipp>=3.19.1 # not directly required, pinned by Snyk to avoid a vulnerability
